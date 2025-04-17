@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Quote, ChevronLeft, ChevronRight } from "lucide-react";
 
 const testimonials = [
@@ -24,16 +24,8 @@ const TestimonialsSection = () => {
   const [sliding, setSliding] = useState(false);
   const [direction, setDirection] = useState<'left' | 'right'>('right');
   
-  // Auto rotate testimonials
-  useEffect(() => {
-    const interval = setInterval(() => {
-      goToNext();
-    }, 7000);
-    
-    return () => clearInterval(interval);
-  }, []);
-  
-  const goToNext = () => {
+  // Use useCallback to memoize functions that will be used in effects 
+  const goToNext = useCallback(() => {
     if (sliding) return;
     setDirection('right');
     setSliding(true);
@@ -43,7 +35,7 @@ const TestimonialsSection = () => {
         setSliding(false);
       }, 50);
     }, 300);
-  };
+  }, [sliding]);
   
   const goToPrevious = () => {
     if (sliding) return;
@@ -68,6 +60,15 @@ const TestimonialsSection = () => {
       }, 50);
     }, 300);
   };
+  
+  // Auto rotate testimonials
+  useEffect(() => {
+    const interval = setInterval(() => {
+      goToNext();
+    }, 7000);
+    
+    return () => clearInterval(interval);
+  }, [goToNext]);
   
   return (
     <section className="py-20 bg-purple-800" id="testimonials">

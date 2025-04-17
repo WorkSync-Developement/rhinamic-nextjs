@@ -1,6 +1,8 @@
 import React from "react";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
+import Link from "next/link";
+import Image from "next/image";
 
 const projects = [
   {
@@ -28,15 +30,17 @@ export default function Gallery() {
             <h1 className="text-5xl font-bold text-center mb-12 text-purple-900 drop-shadow-sm">Gallery</h1>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
               {projects.map((project) => (
-                <a
+                <Link
                   key={project.slug}
                   href={`/projects/${project.slug}`}
                   className="relative group rounded-xl overflow-hidden shadow-md bg-white flex flex-col justify-end aspect-[4/3]"
                 >
-                  <img
+                  <Image
                     src={project.image}
                     alt={project.title}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="absolute inset-0 object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
                   />
                   <div className="absolute top-0 left-0 w-full bg-gradient-to-b from-black/60 to-transparent py-3 px-5">
                     <span className="text-lg font-semibold text-white drop-shadow-sm">{project.service}</span>
@@ -47,7 +51,7 @@ export default function Gallery() {
                     </span>
                   </div>
                   <span className="absolute inset-0 z-20 group-hover:bg-purple-900/10 transition-colors" />
-                </a>
+                </Link>
               ))}
             </div>
             <div className="text-center mt-14">

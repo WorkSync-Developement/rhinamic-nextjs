@@ -1,6 +1,8 @@
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import { useRouter } from "next/router";
+import Link from "next/link";
+import Image from "next/image";
 
 const projects = [
   {
@@ -45,9 +47,9 @@ export default function ProjectPage() {
           <div className="container-custom max-w-3xl mx-auto px-4">
             <h1 className="text-4xl font-semibold mb-4 text-purple-900">{project.title}</h1>
             <h2 className="text-lg mb-6 text-green-700">{project.service}</h2>
-            <img src={project.image} alt={project.title} className="rounded-xl w-full mb-8 object-cover aspect-[4/3]" />
+            <Image src={project.image} alt={project.title} className="rounded-xl w-full mb-8 object-cover aspect-[4/3]" width={800} height={600} />
             <p className="text-base text-gray-800 mb-8">{project.description}</p>
-            <a href="/gallery" className="text-purple-700 underline">Back to Gallery</a>
+            <Link href="/gallery" className="text-purple-700 underline">Back to Gallery</Link>
           </div>
         </section>
       </main>

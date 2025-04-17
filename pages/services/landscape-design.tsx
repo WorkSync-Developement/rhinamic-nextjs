@@ -1,5 +1,6 @@
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
+import Link from "next/link";
 
 export default function LandscapeDesign() {
   return (
@@ -10,7 +11,7 @@ export default function LandscapeDesign() {
           <div className="container-custom max-w-3xl mx-auto px-4">
             <h1 className="text-5xl font-bold text-purple-900 mb-8 drop-shadow-sm">Landscape Design</h1>
             <p className="text-lg text-gray-700 mb-6">Professional landscape design tailored to your property, style, and goals. (SEO content placeholder)</p>
-            <a href="/services" className="text-purple-700 underline">Back to Services</a>
+            <Link href="/services" className="text-purple-700 underline">Back to Services</Link>
           </div>
         </section>
       </main>
