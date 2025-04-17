@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <rect width="1920" height="1080" fill="#6B46C1"/>
+  <g opacity="0.3">
+    <path fill="#9F7AEA" d="M0,800 Q480,600 960,900 T1920,800 V1080 H0 Z"/>
+  </g>
+  <g opacity="0.2">
+    <path fill="#E9D8FD" d="M0,900 Q480,750 960,950 T1920,900 V1080 H0 Z"/>
+  </g>
+</svg>

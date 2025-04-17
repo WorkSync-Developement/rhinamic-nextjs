@@ -1,0 +1,16 @@
+[
+  {
+    "title": "Modern Paver Patio",
+    "slug": "modern-paver-patio",
+    "image": "/gallery/patio1.jpg",
+    "service": "Paver Patio Installation",
+    "description": "A modern paver patio with clean lines, custom seating, and integrated lighting. Designed for outdoor entertaining and relaxation."
+  },
+  {
+    "title": "Native Plant Xeriscape",
+    "slug": "native-plant-xeriscape",
+    "image": "/gallery/xeriscape1.jpg",
+    "service": "Xeriscaping (drought-tolerant landscaping)",
+    "description": "Low-maintenance, water-wise landscape featuring native Texas plants and stone pathways."
+  }
+]

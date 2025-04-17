@@ -1,0 +1,2 @@
+2025-04-17: Applied global styling/layout to about, services, gallery, and contact pages. All now use Navbar, Footer, and main layout structure for consistency. Updated checklist.md accordingly.
+2025-04-17: Implemented interactive expandable (accordion) service categories on Services page. Each main service card now expands to show sub-services on click. Updated checklist.md accordingly.
