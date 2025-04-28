@@ -71,7 +71,7 @@ const TestimonialsSection = () => {
   }, [goToNext]);
   
   return (
-    <section className="py-20 bg-purple-800" id="testimonials">
+    <section className="py-20 bg-rhinamic-primary" id="testimonials">
       <div className="container-custom">
         <div className="text-center mb-14">
           <h2 className="text-4xl font-bold mb-6 text-white">What Our Clients Say</h2>
@@ -89,10 +89,10 @@ const TestimonialsSection = () => {
                 : 'translateX(0)' 
             }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-5 bg-white rounded-xl shadow-xl overflow-hidden">
-              <div className="bg-gray-800 p-8 md:p-12 md:col-span-2 flex items-center justify-center">
+            <div className="grid grid-cols-1 md:grid-cols-5 bg-white rounded-lg shadow-xl overflow-hidden">
+              <div className="bg-rhinamic-accent p-8 md:p-12 md:col-span-2 flex items-center justify-center">
                 <div className="text-center">
-                  <div className="bg-purple-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="bg-rhinamic-dark w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-white text-2xl font-bold">{testimonials[activeIndex].name.charAt(0)}</span>
                   </div>
                   <h3 className="text-white text-xl font-bold">{testimonials[activeIndex].name}</h3>
@@ -101,7 +101,7 @@ const TestimonialsSection = () => {
               </div>
               
               <div className="p-8 md:p-12 md:col-span-3 text-gray-800">
-                <Quote className="text-purple-300 w-16 h-16 mb-6" />
+                <Quote className="text-rhinamic-secondary w-16 h-16 mb-6" />
                 <p className="text-xl text-gray-700 mb-8 font-light italic">"{testimonials[activeIndex].quote}"</p>
               </div>
             </div>
@@ -122,7 +122,7 @@ const TestimonialsSection = () => {
           {/* Arrow navigation */}
           <button 
             onClick={goToPrevious}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-5 bg-white p-2 rounded-full shadow-lg text-purple-800 hover:bg-gray-100 focus:outline-none md:block hidden"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-5 bg-white p-2 rounded-lg shadow-lg text-rhinamic-primary hover:bg-gray-100 focus:outline-none md:block hidden"
             aria-label="Previous testimonial"
           >
             <ChevronLeft size={24} />
@@ -130,7 +130,7 @@ const TestimonialsSection = () => {
           
           <button
             onClick={goToNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-5 bg-white p-2 rounded-full shadow-lg text-purple-800 hover:bg-gray-100 focus:outline-none md:block hidden"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-5 bg-white p-2 rounded-lg shadow-lg text-rhinamic-primary hover:bg-gray-100 focus:outline-none md:block hidden"
             aria-label="Next testimonial"
           >
             <ChevronRight size={24} />
