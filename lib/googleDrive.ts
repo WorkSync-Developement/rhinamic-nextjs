@@ -58,11 +58,12 @@ export const uploadImageToDrive = async (file: FileUpload, folderId: string, des
 
     // Make file publicly viewable
     await drive.permissions.create({
-      fileId: response.data.id,
       requestBody: {
         role: 'reader',
         type: 'anyone',
       },
+      fileId: response.data.id as string,
+      fields: 'id',
     });
 
     return response.data;
