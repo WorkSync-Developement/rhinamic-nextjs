@@ -30,14 +30,24 @@ export default async function handler(
     
     const images = await getGalleryImages(folderId);
     
+    if (!images || !Array.isArray(images)) {
+      throw new Error('Invalid response from Google Drive API');
+    }
+
     // Transform Google Drive URLs to direct image URLs
-    const transformedImages = images.map((image: any) => ({
-      id: image.id,
-      name: image.name,
-      description: image.description || '',
-      url: `https://drive.google.com/uc?id=${image.id}`,
-      createdTime: image.createdTime,
-    }));
+    const transformedImages = images
+      .filter((image): image is GalleryImage => Boolean(image?.id)) // Filter out any invalid images
+      .map((image) => ({
+        id: image.id,
+        name: image.name || 'Untitled Image',
+        description: image.description || '',
+        url: `https://drive.google.com/uc?id=${image.id}`,
+        createdTime: image.createdTime || new Date().toISOString(),
+      }));
+
+    if (transformedImages.length === 0) {
+      console.warn('No valid images found in the specified folder');
+    }
 
     res.status(200).json(transformedImages);
   } catch (error) {

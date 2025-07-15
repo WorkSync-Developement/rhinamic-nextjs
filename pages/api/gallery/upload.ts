@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { uploadImageToDrive } from '../../../lib/googleDrive';
-import formidable from 'formidable';
+import { IncomingForm } from 'formidable';
 import fs from 'fs';
-import { getSession } from 'next-auth/react';
 
 // Disable body parser for file uploads
 export const config = {
@@ -28,20 +27,19 @@ export default async function handler(
     });
   }
 
-  // Check authentication
-  const session = await getSession({ req });
-  if (!session) {
-    return res.status(401).json({ 
-      success: false,
-      message: 'Unauthorized' 
-    });
-  }
-
+  const form = new IncomingForm();
+  
   try {
-    const form = new formidable.IncomingForm();
-    const [fields, files] = await form.parse(req) as [formidable.Fields, formidable.Files];
+    // Parse the form
+    const [fields, files] = await new Promise<[any, any]>((resolve, reject) => {
+      form.parse(req, (err, fields, files) => {
+        if (err) return reject(err);
+        resolve([fields, files]);
+      });
+    });
     
-    const uploadedFile = files.image?.[0];
+    // Get the uploaded file
+    const uploadedFile = files?.image?.[0];
     if (!uploadedFile) {
       return res.status(400).json({ 
         success: false,
@@ -49,24 +47,9 @@ export default async function handler(
       });
     }
 
-    // Validate file type
-    const validMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!validMimeTypes.includes(uploadedFile.mimetype || '')) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid file type. Only JPEG, PNG, and WebP are allowed.'
-      });
-    }
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (uploadedFile.size > maxSize) {
-      return res.status(400).json({
-        success: false,
-        message: 'File too large. Maximum size is 5MB.'
-      });
-    }
     
+    // Create file stream for upload
     const fileStream = fs.createReadStream(uploadedFile.filepath);
     const folderId = process.env.GOOGLE_DRIVE_GALLERY_FOLDER_ID;
     
@@ -76,21 +59,27 @@ export default async function handler(
 
     const description = fields.description?.[0] || '';
     
+    // Upload the file to Google Drive
     const uploadResult = await uploadImageToDrive({
-      name: uploadedFile.originalFilename || 'unnamed.jpg',
+      name: uploadedFile.originalFilename || `image-${Date.now()}.jpg`,
       type: uploadedFile.mimetype || 'image/jpeg',
       stream: fileStream,
     }, folderId, description);
 
-    res.status(200).json({ 
+    // Clean up the temporary file
+    fs.unlink(uploadedFile.filepath, (err) => {
+      if (err) console.error('Error deleting temporary file:', err);
+    });
+
+    return res.status(200).json({ 
       success: true, 
       file: uploadResult 
     });
   } catch (error) {
     console.error('Upload error:', error);
-    res.status(500).json({ 
+    return res.status(500).json({ 
       success: false, 
-      message: 'Error uploading image' 
+      message: error instanceof Error ? error.message : 'Error uploading image'
     });
   }
 }
