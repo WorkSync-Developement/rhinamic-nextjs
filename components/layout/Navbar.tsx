@@ -2,12 +2,54 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Phone, Menu, X, ChevronRight } from "lucide-react";
 
-console.log('[DEBUG] Loading components/layout/Navbar.tsx');
+/**
+ * ServicePage type for dropdown
+ */
+type ServicePage = {
+  slug: string;
+  title: string;
+};
+
+/**
+ * List of all service pages (update this list if new pages are added)
+ * This is auto-generated from file names for now.
+ */
+const servicePages: ServicePage[] = [
+  { slug: "artificial-turf-installation", title: "Artificial Turf Installation" },
+  { slug: "drip-irrigation-systems", title: "Drip Irrigation Systems" },
+  { slug: "fire-pit-installation", title: "Fire Pit Installation" },
+  { slug: "grass-seeding-overseeding", title: "Grass Seeding Overseeding" },
+  { slug: "irrigation-system-installation-repair", title: "Irrigation System Installation & Repair" },
+  { slug: "landscape-design", title: "Landscape Design" },
+  { slug: "landscape-installation", title: "Landscape Installation" },
+  { slug: "landscape-lighting-installation", title: "Landscape Lighting Installation" },
+  { slug: "landscape-maintenance", title: "Landscape Maintenance" },
+  { slug: "lawn-aeration", title: "Lawn Aeration" },
+  { slug: "lawn-care-services", title: "Lawn Care Services" },
+  { slug: "lawn-edging", title: "Lawn Edging" },
+  { slug: "lawn-fertilization", title: "Lawn Fertilization" },
+  { slug: "lawn-mowing", title: "Lawn Mowing" },
+  { slug: "native-plant-landscaping", title: "Native Plant Landscaping" },
+  { slug: "outdoor-kitchens", title: "Outdoor Kitchens" },
+  { slug: "palm-tree-trimming", title: "Palm Tree Trimming" },
+  { slug: "paver-patio-installation", title: "Paver Patio Installation" },
+  { slug: "retaining-wall-construction", title: "Retaining Wall Construction" },
+  { slug: "shrub-pruning", title: "Shrub Pruning" },
+  { slug: "sod-installation", title: "Sod Installation" },
+  { slug: "sprinkler-system-installation", title: "Sprinkler System Installation" },
+  { slug: "stonework-rock-features", title: "Stonework & Rock Features" },
+  { slug: "tree-planting", title: "Tree Planting" },
+  { slug: "tree-removal", title: "Tree Removal" },
+  { slug: "tree-trimming", title: "Tree Trimming" },
+  { slug: "walkways-pathways", title: "Walkways & Pathways" },
+  { slug: "weed-control", title: "Weed Control" },
+  { slug: "xeriscaping", title: "Xeriscaping" },
+];
 
 const Navbar = () => {
-  console.log('[DEBUG] Rendering Navbar component');
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showMobileServices, setShowMobileServices] = useState<boolean>(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -61,14 +103,29 @@ const Navbar = () => {
                 Home
               </a>
             </li>
-            <li>
-              <a 
-                href="#services" 
-                onClick={(e) => scrollToSection(e, 'services')}
-                className={`font-medium hover:text-rhinamic-purple transition-colors ${scrolled ? 'text-gray-800' : 'text-white'}`}
+            {/* Services Dropdown (Desktop) */}
+            <li className="relative group">
+              <button
+                type="button"
+                className={`font-medium hover:text-rhinamic-purple transition-colors ${scrolled ? 'text-gray-800' : 'text-white'} flex items-center gap-1 focus:outline-none`}
+                aria-haspopup="true"
+                aria-expanded="false"
               >
                 Services
-              </a>
+                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <ul className="absolute left-0 mt-2 w-64 bg-white shadow-lg rounded-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity z-50 pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto">
+                {servicePages.map((service) => (
+                  <li key={service.slug}>
+                    <Link
+                      href={`/services/${service.slug}`}
+                      className="block px-5 py-2 text-gray-800 hover:bg-rhinamic-lavender/30 hover:text-rhinamic-purple transition-colors rounded"
+                    >
+                      {service.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </li>
             <li>
               <a 
@@ -145,14 +202,33 @@ const Navbar = () => {
                 Home
               </a>
             </li>
-            <li>
-              <a 
-                href="#services" 
-                onClick={(e) => scrollToSection(e, 'services')}
-                className="block py-2 text-gray-800 hover:text-rhinamic-purple transition-colors"
+            {/* Services Dropdown (Mobile) */}
+            <li className="relative">
+              <button
+                type="button"
+                className="py-2 w-full text-left text-gray-800 hover:text-rhinamic-purple transition-colors flex items-center gap-1 focus:outline-none"
+                onClick={() => setShowMobileServices(!showMobileServices)}
+                aria-haspopup="true"
+                aria-expanded={showMobileServices}
               >
                 Services
-              </a>
+                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              {showMobileServices && (
+                <ul className="mt-1 mb-2 bg-white rounded-lg shadow-lg border border-gray-100">
+                  {servicePages.map((service) => (
+                    <li key={service.slug}>
+                      <Link
+                        href={`/services/${service.slug}`}
+                        className="block px-5 py-2 text-gray-800 hover:bg-rhinamic-lavender/30 hover:text-rhinamic-purple transition-colors rounded"
+                        onClick={() => { setMobileMenuOpen(false); setShowMobileServices(false); }}
+                      >
+                        {service.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
             <li>
               <a 

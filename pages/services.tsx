@@ -67,7 +67,7 @@ const serviceCategories = [
       { name: "Xeriscaping (drought-tolerant landscaping)", slug: "xeriscaping" },
       { name: "Native plant landscaping", slug: "native-plant-landscaping" },
       { name: "Drip irrigation systems", slug: "drip-irrigation-systems" },
-      { name: "Rainwater harvesting integration", slug: "rainwater-harvesting-integration" }
+      { name: "Rainwater harvesting integration", slug: "services" }
     ]
   },
   {
@@ -75,11 +75,11 @@ const serviceCategories = [
     title: "Seasonal & Cleanup Services",
     summary: "Spring/fall cleanup, mulching, storm cleanup, seasonal planting.",
     details: [
-      { name: "Fall leaf cleanup", slug: "fall-leaf-cleanup" },
-      { name: "Spring yard cleanup", slug: "spring-yard-cleanup" },
-      { name: "Storm damage cleanup", slug: "storm-damage-cleanup" },
-      { name: "Mulching", slug: "mulching" },
-      { name: "Seasonal flower planting", slug: "seasonal-flower-planting" }
+      { name: "Fall leaf cleanup", slug: "services" },
+      { name: "Spring yard cleanup", slug: "services" },
+      { name: "Storm damage cleanup", slug: "services" },
+      { name: "Mulching", slug: "services" },
+      { name: "Seasonal flower planting", slug: "services" }
     ]
   }
 ];
@@ -134,7 +134,7 @@ export default function Services() {
                         <ul>
                           {cat.details.map((item) => (
                             <li key={item.slug} className="text-gray-700 text-base pl-3 py-1 list-disc list-inside">
-                              <Link href={`/services/${item.slug}`} className="text-purple-700 hover:underline">
+                              <Link href={item.slug === "services" ? "/services" : `/services/${item.slug}`} className="text-purple-700 hover:underline">
                                 {item.name}
                               </Link>
                             </li>
