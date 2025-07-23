@@ -1,50 +1,158 @@
-import Head from "next/head";
-import Layout from "../../components/layout/Layout";
+import React from "react";
 import Link from "next/link";
 import { CheckCircle, Home, Shield, Wrench, Calendar, Phone } from "lucide-react";
+import ServicesLayout from "../../components/layout/ServicesLayout";
 
-export default function PaverPatioInstallation() {
+const PaverPatioInstallation = () => {
+  const serviceFeatures = [
+    {
+      title: "Durability & Longevity",
+      description: "Quality pavers withstand Texas heat, freeze-thaw cycles, and heavy use for decades without cracking like concrete."
+    },
+    {
+      title: "Design Flexibility",
+      description: "Unlimited design possibilities with various colors, textures, sizes, and patterns to match your home's architecture."
+    },
+    {
+      title: "Low Maintenance",
+      description: "Easy to clean and maintain with minimal upkeep compared to wood decks or concrete slabs."
+    },
+    {
+      title: "Increased Home Value",
+      description: "Boost your property value with a beautiful, professionally installed patio that potential buyers will love."
+    },
+    {
+      title: "Environmentally Friendly",
+      description: "Permeable paver options allow water to drain naturally, reducing runoff and helping the environment."
+    },
+    {
+      title: "Easy Repairs",
+      description: "Individual pavers can be replaced if damaged without tearing out the entire patio, unlike concrete slabs."
+    },
+    {
+      title: "Non-Slip Surface",
+      description: "Textured pavers provide better traction when wet compared to concrete or tile, increasing safety around pools."
+    },
+    {
+      title: "Year-Round Enjoyment",
+      description: "Extend your living space outdoors and enjoy your patio throughout San Antonio's mild climate."
+    }
+  ];
+
+  const plans = [
+    {
+      name: "Basic Patio",
+      icon: <Home className="text-blue-500" size={24} />,
+      features: [
+        "Up to 200 sq. ft. installation",
+        "Standard paver selection",
+        "Basic pattern layout",
+        "Essential drainage"
+      ],
+      description: "Perfect for creating simple, functional outdoor spaces.",
+      highlight: false
+    },
+    {
+      name: "Premium Patio",
+      icon: <Shield className="text-green-500" size={24} />,
+      features: [
+        "200-500 sq. ft. installation",
+        "Premium paver selection",
+        "Custom pattern design",
+        "Enhanced drainage system"
+      ],
+      description: "Upgrade to a more elaborate design with premium materials and features.",
+      highlight: true
+    },
+    {
+      name: "Custom Design",
+      icon: <Wrench className="text-purple-500" size={24} />,
+      features: [
+        "500+ sq. ft. installation",
+        "Luxury paver selection",
+        "Complex custom design",
+        "Integrated features"
+      ],
+      description: "The ultimate patio experience with high-end materials and custom features.",
+      highlight: false
+    }
+  ];
+
+  const seasonalCare = [
+    {
+      season: "Spring",
+      items: [
+        "Clean with pressure washer",
+        "Check for winter damage",
+        "Replace damaged pavers",
+        "Apply new sand in joints"
+      ]
+    },
+    {
+      season: "Summer",
+      items: [
+        "Remove stains promptly",
+        "Weed between pavers",
+        "Check for settling",
+        "Rinse patio regularly"
+      ]
+    },
+    {
+      season: "Fall",
+      items: [
+        "Remove leaves/debris",
+        "Clean gutters above patio",
+        "Seal pavers (if needed)",
+        "Check drainage"
+      ]
+    },
+    {
+      season: "Winter",
+      items: [
+        "Remove snow carefully",
+        "Avoid harsh de-icers",
+        "Cover furniture",
+        "Plan spring upgrades"
+      ]
+    }
+  ];
+
+  const faq = [
+    {
+      question: "How long does a paver patio installation take?",
+      answer: "Most residential paver patio installations take 3-7 days depending on the size, design complexity, and site conditions."
+    },
+    {
+      question: "Do paver patios require a lot of maintenance?",
+      answer: "No, paver patios are relatively low-maintenance. Regular sweeping, occasional rinsing, and reapplying joint sand every few years is typically all that's needed."
+    },
+    {
+      question: "How much do paver patios cost in San Antonio?",
+      answer: "Paver patio costs range from $15-30 per square foot installed, depending on materials, design complexity, and site conditions."
+    },
+    {
+      question: "Are pavers better than concrete for a patio?",
+      answer: "In most cases, yes. Pavers offer greater durability, easier repairs, better drainage, more design options, and higher resale value than poured concrete."
+    },
+    {
+      question: "How long will a properly installed paver patio last?",
+      answer: "A professionally installed paver patio can last 25-50 years or more with proper maintenance, significantly longer than concrete alternatives."
+    }
+  ];
+  
   return (
-    <>
-      <Head>
-        <title>Paver Patio Installation | San Antonio, TX | Rhinamic</title>
-        <meta name="description" content="Expert paver patio installation in San Antonio, TX. Custom outdoor living spaces with quality materials and professional craftsmanship. Transform your backyard." />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://www.rhinamic.com/services/paver-patio-installation" />
-      </Head>
-      
-      <Layout>
-        <div className="min-h-screen bg-white">
-          {/* Hero Section */}
-          <section className="py-20 bg-gradient-to-b from-purple-50 to-white">
-            <div className="container-custom max-w-4xl mx-auto px-4">
-              <div className="text-center mb-12">
-                <h1 className="text-5xl font-bold text-purple-900 mb-6 drop-shadow-sm">
-                  Professional Paver Patio Installation
-                </h1>
-                <p className="text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
-                  Create the perfect outdoor living space with custom paver patios. Expert installation in San Antonio 
-                  with quality materials and craftsmanship that withstands Texas weather and enhances your property value.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <a 
-                    href="#contact" 
-                    className="bg-purple-800 text-white px-8 py-4 rounded-lg font-semibold hover:bg-purple-900 transition-colors inline-flex items-center gap-2"
-                  >
-                    <Phone size={20} />
-                    Get Patio Quote
-                  </a>
-                  <a 
-                    href="tel:2012544911"
-                    className="border-2 border-purple-800 text-purple-800 px-8 py-4 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
-                  >
-                    Call (201) 254-4911
-                  </a>
-                </div>
-              </div>
-            </div>
-          </section>
+    <ServicesLayout
+      title="Paver Patio Installation | San Antonio, TX | Rhinamic"
+      description="Expert paver patio installation in San Antonio, TX. Custom outdoor living spaces with quality materials and professional craftsmanship. Transform your backyard."
+      heroTitle="Professional Paver Patio Installation"
+      heroDescription="Create the perfect outdoor living space with custom paver patios. Expert installation in San Antonio with quality materials and craftsmanship that withstands Texas weather and enhances your property value."
+      serviceFeatures={serviceFeatures}
+      plans={plans}
+      seasonalCare={seasonalCare}
+      faq={faq}
+      ctaTitle="Ready to Create Your Dream Patio?"
+      ctaDescription="Transform your backyard into an outdoor living paradise with a custom paver patio. Professional installation, quality materials, and expert craftsmanship guaranteed."
+    >
 
           {/* Benefits of Paver Patios */}
           <section className="py-16 bg-gray-50">
@@ -399,46 +507,99 @@ export default function PaverPatioInstallation() {
             </div>
           </section>
 
-          {/* Related Services */}
-          <section className="py-16 bg-gray-50">
-            <div className="container-custom max-w-4xl mx-auto px-4">
-              <h2 className="text-3xl font-bold text-purple-900 mb-8 text-center">Related Services</h2>
-              <div className="grid md:grid-cols-3 gap-6">
-                <Link 
-                  href="/services/outdoor-kitchens"
-                  className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
-                >
-                  <h3 className="text-lg font-semibold text-purple-800 mb-2">Outdoor Kitchens</h3>
-                  <p className="text-gray-600">Complete your patio with a custom outdoor kitchen and entertaining area</p>
-                </Link>
-                <Link 
-                  href="/services/fire-pit-installation"
-                  className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
-                >
-                  <h3 className="text-lg font-semibold text-purple-800 mb-2">Fire Pit Installation</h3>
-                  <p className="text-gray-600">Add warmth and ambiance with professional fire pit installation</p>
-                </Link>
-                <Link 
-                  href="/services"
-                  className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow text-center"
-                >
-                  <h3 className="text-lg font-semibold text-purple-800 mb-2">View All Services</h3>
-                  <p className="text-gray-600">Explore our complete range of landscaping services</p>
-                </Link>
+        {/* Benefits Grid */}
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-6">
+            <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">Benefits of Professional Patio Installation</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                <Home className="text-purple-600 mb-4" size={48} />
+                <h3 className="text-lg font-semibold text-purple-900 mb-3">Outdoor Living Space</h3>
+                <p className="text-gray-700 text-sm mb-3">
+                  Create a beautiful extension of your home for dining, entertaining, 
+                  and relaxation that adds usable square footage to your property.
+                </p>
+              </div>
+              
+              <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                <Shield className="text-purple-600 mb-4" size={48} />
+                <h3 className="text-lg font-semibold text-purple-900 mb-3">Long-Term Investment</h3>
+                <p className="text-gray-700 text-sm mb-3">
+                  High-quality pavers last decades with minimal maintenance, providing 
+                  better long-term value than wood decks or poured concrete.
+                </p>
+              </div>
+              
+              <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                <Wrench className="text-purple-600 mb-4" size={48} />
+                <h3 className="text-lg font-semibold text-purple-900 mb-3">Customizable Design</h3>
+                <p className="text-gray-700 text-sm mb-3">
+                  Choose from countless patterns, colors, and textures to create a 
+                  unique space that perfectly complements your home's architecture.
+                </p>
+              </div>
+              
+              <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                <Calendar className="text-purple-600 mb-4" size={48} />
+                <h3 className="text-lg font-semibold text-purple-900 mb-3">Year-Round Enjoyment</h3>
+                <p className="text-gray-700 text-sm mb-3">
+                  Extend your living space outdoors and enjoy your patio for entertaining, 
+                  relaxation, and family activities throughout San Antonio's mild winters.
+                </p>
+              </div>
+
+              <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                <Calendar className="text-purple-600 mb-4" size={48} />
+                <h3 className="text-lg font-semibold text-purple-900 mb-3">Professional Installation</h3>
+                <p className="text-gray-700 text-sm mb-3">
+                  Our expert installers ensure proper base preparation, precise paver placement, 
+                  and proper drainage for a patio that lasts decades without settling or shifting.
+                </p>
+              </div>
+
+              <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                <Calendar className="text-purple-600 mb-4" size={48} />
+                <h3 className="text-lg font-semibold text-purple-900 mb-3">Increased Property Value</h3>
+                <p className="text-gray-700 text-sm mb-3">
+                  A beautiful paver patio delivers one of the highest ROIs of any outdoor improvement, 
+                  often returning 80%+ of your investment in increased home value.
+                </p>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* Back to Services */}
-          <section className="py-8 bg-white">
-            <div className="container-custom max-w-4xl mx-auto px-4 text-center">
-              <Link href="/services" className="text-purple-700 hover:text-purple-900 underline font-medium">
-                ← Back to All Services
+        {/* Related Services */}
+        <section className="py-16 bg-gray-50">
+          <div className="container mx-auto px-6">
+            <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">Related Services</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Link 
+                href="/services/outdoor-kitchens"
+                className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+              >
+                <h3 className="text-lg font-semibold text-purple-800 mb-2">Outdoor Kitchens</h3>
+                <p className="text-gray-600">Complete your patio with a custom outdoor kitchen and entertaining area</p>
+              </Link>
+              <Link 
+                href="/services/fire-pit-installation"
+                className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+              >
+                <h3 className="text-lg font-semibold text-purple-800 mb-2">Fire Pit Installation</h3>
+                <p className="text-gray-600">Add warmth and ambiance with professional fire pit installation</p>
+              </Link>
+              <Link 
+                href="/services"
+                className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow text-center"
+              >
+                <h3 className="text-lg font-semibold text-purple-800 mb-2">View All Services</h3>
+                <p className="text-gray-600">Explore our complete range of landscaping services</p>
               </Link>
             </div>
-          </section>
-        </div>
-      </Layout>
-    </>
+          </div>
+        </section>
+    </ServicesLayout>
   );
-}
+};
+
+export default PaverPatioInstallation;

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { Phone, Menu, X, ChevronRight } from "lucide-react";
 
 /**
@@ -50,6 +51,11 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showMobileServices, setShowMobileServices] = useState<boolean>(false);
+  const [showDesktopServices, setShowDesktopServices] = useState<boolean>(false);
+  const router = useRouter();
+  
+  // Check if we're on the home page
+  const isHomePage = router.pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -67,6 +73,21 @@ const Navbar = () => {
     };
   }, []);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (showDesktopServices && !target.closest('.services-dropdown')) {
+        setShowDesktopServices(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDesktopServices]);
+
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
     setMobileMenuOpen(false);
@@ -80,7 +101,11 @@ const Navbar = () => {
   };
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-white shadow-md py-3" : "bg-transparent backdrop-blur-sm py-4"}`}>
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      isHomePage 
+        ? (scrolled ? "bg-white shadow-md py-3" : "bg-transparent backdrop-blur-sm py-4")
+        : "bg-white shadow-md py-3"
+    }`}>
       <div className="container-custom flex items-center justify-between">
         <div className="flex items-center">
           <Link href="/" className="text-2xl font-bold text-rhinamic-purple">
@@ -95,64 +120,105 @@ const Navbar = () => {
         <nav className="hidden md:block">
           <ul className="flex space-x-8">
             <li>
-              <a 
-                href="#home" 
-                onClick={(e) => scrollToSection(e, 'home')}
-                className={`font-medium hover:text-rhinamic-purple transition-colors ${scrolled ? 'text-gray-800' : 'text-white'}`}
-              >
-                Home
-              </a>
+              {isHomePage ? (
+                <a 
+                  href="#home" 
+                  onClick={(e) => scrollToSection(e, 'home')}
+                  className={`font-medium hover:text-rhinamic-purple transition-colors ${
+                    scrolled ? 'text-gray-800' : 'text-white'
+                  }`}
+                >
+                  Home
+                </a>
+              ) : (
+                <Link
+                  href="/"
+                  className="font-medium hover:text-rhinamic-purple transition-colors text-gray-800"
+                >
+                  Home
+                </Link>
+              )}
             </li>
             {/* Services Dropdown (Desktop) */}
-            <li className="relative group">
+            <li className="relative services-dropdown">
               <button
                 type="button"
-                className={`font-medium hover:text-rhinamic-purple transition-colors ${scrolled ? 'text-gray-800' : 'text-white'} flex items-center gap-1 focus:outline-none`}
+                onClick={() => setShowDesktopServices(!showDesktopServices)}
+                className={`font-medium hover:text-rhinamic-purple transition-colors ${
+                  isHomePage ? (scrolled ? 'text-gray-800' : 'text-white') : 'text-gray-800'
+                } flex items-center gap-1 focus:outline-none`}
                 aria-haspopup="true"
-                aria-expanded="false"
+                aria-expanded={showDesktopServices}
               >
                 Services
-                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                <svg className={`w-4 h-4 ml-1 transition-transform ${showDesktopServices ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>
               </button>
-              <ul className="absolute left-0 mt-2 w-64 bg-white shadow-lg rounded-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity z-50 pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto">
-                {servicePages.map((service) => (
-                  <li key={service.slug}>
-                    <Link
-                      href={`/services/${service.slug}`}
-                      className="block px-5 py-2 text-gray-800 hover:bg-rhinamic-lavender/30 hover:text-rhinamic-purple transition-colors rounded"
-                    >
-                      {service.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              {showDesktopServices && (
+                <ul className="absolute left-0 mt-2 w-64 bg-white shadow-lg rounded-lg border border-gray-100 z-50">
+                  {servicePages.map((service) => (
+                    <li key={service.slug}>
+                      <Link
+                        href={`/services/${service.slug}`}
+                        className="block px-5 py-2 text-gray-800 hover:bg-rhinamic-lavender/30 hover:text-rhinamic-purple transition-colors rounded"
+                        onClick={() => setShowDesktopServices(false)}
+                      >
+                        {service.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
             </li>
             <li>
-              <a 
-                href="#why-choose-us" 
-                onClick={(e) => scrollToSection(e, 'why-choose-us')}
-                className={`font-medium hover:text-rhinamic-purple transition-colors ${scrolled ? 'text-gray-800' : 'text-white'}`}
-              >
-                Why Us
-              </a>
+              {isHomePage ? (
+                <a 
+                  href="#why-choose-us" 
+                  onClick={(e) => scrollToSection(e, 'why-choose-us')}
+                  className={`font-medium hover:text-rhinamic-purple transition-colors ${
+                    scrolled ? 'text-gray-800' : 'text-white'
+                  }`}
+                >
+                  Why Us
+                </a>
+              ) : (
+                <Link
+                  href="/#why-choose-us"
+                  className="font-medium hover:text-rhinamic-purple transition-colors text-gray-800"
+                >
+                  Why Us
+                </Link>
+              )}
             </li>
             <li>
-              <a 
-                href="#gallery" 
-                onClick={(e) => scrollToSection(e, 'gallery')}
-                className={`font-medium hover:text-rhinamic-purple transition-colors ${scrolled ? 'text-gray-800' : 'text-white'}`}
+              <Link
+                href="/gallery"
+                className={`font-medium hover:text-rhinamic-purple transition-colors ${
+                  isHomePage ? (scrolled ? 'text-gray-800' : 'text-white') : 'text-gray-800'
+                }`}
               >
                 Gallery
-              </a>
+              </Link>
             </li>
             <li>
-              <a 
-                href="#contact" 
-                onClick={(e) => scrollToSection(e, 'contact')}
-                className={`font-medium hover:text-rhinamic-purple transition-colors ${scrolled ? 'text-gray-800' : 'text-white'}`}
-              >
-                Contact
-              </a>
+              {isHomePage ? (
+                <a 
+                  href="#contact" 
+                  onClick={(e) => scrollToSection(e, 'contact')}
+                  className={`font-medium hover:text-rhinamic-purple transition-colors ${
+                    scrolled ? 'text-gray-800' : 'text-white'
+                  }`}
+                >
+                  Contact
+                </a>
+              ) : (
+                <Link
+                  href="/#contact"
+                  className="font-medium hover:text-rhinamic-purple transition-colors text-gray-800"
+                >
+                  Contact
+                </Link>
+              )}
             </li>
           </ul>
         </nav>
@@ -161,23 +227,35 @@ const Navbar = () => {
           <Link 
             href="tel:2012544911" 
             className={`flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg ${
-              scrolled 
-                ? "text-gray-700 border border-gray-300 hover:border-rhinamic-lavender hover:text-rhinamic-purple transition-colors" 
-                : "text-white bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 transition-all"
+              isHomePage
+                ? (scrolled 
+                    ? "text-gray-700 border border-gray-300 hover:border-rhinamic-lavender hover:text-rhinamic-purple transition-colors" 
+                    : "text-white bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 transition-all")
+                : "text-gray-700 border border-gray-300 hover:border-rhinamic-lavender hover:text-rhinamic-purple transition-colors"
             }`}
           >
             <Phone size={18} />
             201-254-4911
           </Link>
           
-          <a 
-            href="#contact" 
-            onClick={(e) => scrollToSection(e, 'contact')}
-            className="bg-rhinamic-primary hover:bg-rhinamic-dark text-white px-5 py-2 rounded-lg font-medium transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-1 border-b-2 border-rhinamic-lavender/50"
-          >
-            Get a Quote
-            <ChevronRight size={16} />
-          </a>
+          {isHomePage ? (
+            <a 
+              href="#contact" 
+              onClick={(e) => scrollToSection(e, 'contact')}
+              className="bg-rhinamic-primary hover:bg-rhinamic-dark text-white px-5 py-2 rounded-lg font-medium transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-1 border-b-2 border-rhinamic-lavender/50"
+            >
+              Get a Quote
+              <ChevronRight size={16} />
+            </a>
+          ) : (
+            <Link
+              href="/#contact"
+              className="bg-rhinamic-primary hover:bg-rhinamic-dark text-white px-5 py-2 rounded-lg font-medium transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-1 border-b-2 border-rhinamic-lavender/50"
+            >
+              Get a Quote
+              <ChevronRight size={16} />
+            </Link>
+          )}
         </div>
         
         {/* Mobile Menu Button */}

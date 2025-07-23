@@ -1,30 +1,158 @@
 import React from 'react';
 import Link from 'next/link';
-import Layout from '../../components/layout/Layout';
+import { CheckCircle, Droplets, Sun, Leaf, Calendar, Phone } from "lucide-react";
+import ServicesLayout from "../../components/layout/ServicesLayout";
 
 const XeriscapingPage = () => {
+  const serviceFeatures = [
+    {
+      title: "Drought-Tolerant Design",
+      description: "Beautiful landscapes that thrive in San Antonio's hot, dry climate while using 50-75% less water than traditional landscaping."
+    },
+    {
+      title: "Sustainable Beauty",
+      description: "Stunning landscapes that provide year-round color and interest while supporting local wildlife and reducing maintenance requirements."
+    },
+    {
+      title: "Native Plant Selection",
+      description: "Carefully chosen native and adapted plants that are naturally suited to our local climate and soil conditions."
+    },
+    {
+      title: "Water Conservation",
+      description: "Innovative water-saving techniques that reduce outdoor water use by up to 75% compared to traditional landscapes."
+    },
+    {
+      title: "Low Maintenance",
+      description: "Designed to thrive with minimal care, saving you time and money on watering, mowing, and fertilizing."
+    },
+    {
+      title: "Eco-Friendly",
+      description: "Supports local ecosystems, reduces chemical use, and minimizes your environmental footprint."
+    },
+    {
+      title: "Year-Round Interest",
+      description: "Carefully planned plant selections that provide visual interest in every season."
+    },
+    {
+      title: "Increased Property Value",
+      description: "Beautiful, low-maintenance landscapes that enhance curb appeal and property value."
+    }
+  ];
+
+  const plans = [
+    {
+      name: "Basic Xeriscape",
+      icon: <Leaf className="text-green-500" size={24} />,
+      features: [
+        "Native plant selection",
+        "Drought-tolerant design",
+        "Water-efficient irrigation plan",
+        "Basic soil preparation"
+      ],
+      description: "Perfect for homeowners looking to reduce water use with a simple, low-maintenance landscape.",
+      highlight: false
+    },
+    {
+      name: "Premium Xeriscape",
+      icon: <Droplets className="text-blue-500" size={24} />,
+      features: [
+        "Comprehensive design",
+        "Drip irrigation system",
+        "Soil amendments",
+        "Mulching and hardscaping"
+      ],
+      description: "A complete water-wise transformation with premium plants and efficient irrigation.",
+      highlight: true
+    },
+    {
+      name: "Custom Design",
+      icon: <Sun className="text-yellow-500" size={24} />,
+      features: [
+        "Custom landscape design",
+        "Advanced irrigation system",
+        "Specialized plant selection",
+        "Ongoing maintenance plan"
+      ],
+      description: "Tailored xeriscape solutions for unique properties and specific needs.",
+      highlight: false
+    }
+  ];
+
+  const seasonalCare = [
+    {
+      season: "Spring",
+      items: [
+        "Prune winter-damaged growth",
+        "Apply slow-release fertilizer",
+        "Check irrigation system",
+        "Plant warm-season annuals"
+      ]
+    },
+    {
+      season: "Summer",
+      items: [
+        "Monitor for pests",
+        "Adjust irrigation schedule",
+        "Deadhead flowers",
+        "Apply mulch as needed"
+      ]
+    },
+    {
+      season: "Fall",
+      items: [
+        "Plant cool-season annuals",
+        "Divide perennials",
+        "Reduce irrigation",
+        "Clean up debris"
+      ]
+    },
+    {
+      season: "Winter",
+      items: [
+        "Protect sensitive plants",
+        "Prune dormant plants",
+        "Plan next season's garden",
+        "Service irrigation system"
+      ]
+    }
+  ];
+
+  const faq = [
+    {
+      question: "How much water can I save with xeriscaping?",
+      answer: "Most xeriscapes use 50-75% less water than traditional landscapes, with some properties saving up to 90% on outdoor water use."
+    },
+    {
+      question: "Will my xeriscape look like a desert?",
+      answer: "Not at all! Modern xeriscaping creates lush, colorful landscapes using drought-tolerant plants that thrive in our climate."
+    },
+    {
+      question: "How long does it take to establish a xeriscape?",
+      answer: "Most xeriscapes take 1-2 years to become fully established, with proper care and maintenance during the establishment period."
+    },
+    {
+      question: "Is xeriscaping more expensive than traditional landscaping?",
+      answer: "While initial costs may be similar, xeriscaping saves money in the long run through reduced water bills and lower maintenance costs."
+    },
+    {
+      question: "Can I include a lawn in my xeriscape?",
+      answer: "Yes, we can incorporate small, functional lawn areas using drought-resistant grass varieties that require less water and maintenance."
+    }
+  ];
+
   return (
-    <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100">
-        {/* Hero Section */}
-        <section className="relative bg-gradient-to-r from-orange-600 to-amber-600 text-white py-24">
-          <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-5xl font-bold mb-6">
-                Xeriscaping Services
-              </h1>
-              <p className="text-xl text-orange-100 mb-8">
-                Water-wise landscaping solutions perfect for San Antonio's climate - beautiful, sustainable, and drought-tolerant gardens that thrive with minimal water.
-              </p>
-              <Link
-                href="/contact"
-                className="inline-block bg-yellow-500 text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-yellow-400 transition-colors duration-300"
-              >
-                Start Your Xeriscape
-              </Link>
-            </div>
-          </div>
-        </section>
+    <ServicesLayout
+      title="Xeriscaping Services | San Antonio, TX | Rhinamic"
+      description="Professional xeriscaping services in San Antonio. Create beautiful, water-wise landscapes that thrive in our climate with 50-75% less water than traditional landscaping."
+      heroTitle="Xeriscaping Services"
+      heroDescription="Water-wise landscaping solutions perfect for San Antonio's climate - beautiful, sustainable, and drought-tolerant gardens that thrive with minimal water."
+      serviceFeatures={serviceFeatures}
+      plans={plans}
+      seasonalCare={seasonalCare}
+      faq={faq}
+      ctaTitle="Ready to Transform Your Landscape?"
+      ctaDescription="Discover how xeriscaping can save water, reduce maintenance, and create a beautiful, sustainable outdoor space that thrives in San Antonio's climate."
+    >
 
         {/* Service Overview */}
         <section className="py-16">
@@ -434,8 +562,7 @@ const XeriscapingPage = () => {
             </div>
           </div>
         </section>
-      </div>
-    </Layout>
+    </ServicesLayout>
   );
 };
 

@@ -1,119 +1,153 @@
-import Head from "next/head";
-import Layout from "../../components/layout/Layout";
+import { Phone, Lightbulb, Shield, Zap, Moon, CheckCircle } from "lucide-react";
+import ServicesLayout from "../../components/layout/ServicesLayout";
 import Link from "next/link";
-import { CheckCircle, Lightbulb, Shield, Zap, Moon, Phone } from "lucide-react";
 
 export default function LandscapeLightingInstallation() {
-  return (
-    <>
-      <Head>
-        <title>Landscape Lighting Installation | San Antonio, TX | Rhinamic</title>
-        <meta name="description" content="Professional landscape lighting installation in San Antonio, TX. LED outdoor lighting systems for security, beauty, and extended outdoor enjoyment." />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://www.rhinamic.com/services/landscape-lighting-installation" />
-      </Head>
-      
-      <Layout>
-        <div className="min-h-screen bg-white">
-          {/* Hero Section */}
-          <section className="py-20 bg-gradient-to-b from-purple-50 to-white">
-            <div className="container-custom max-w-4xl mx-auto px-4">
-              <div className="text-center mb-12">
-                <h1 className="text-5xl font-bold text-purple-900 mb-6 drop-shadow-sm">
-                  Professional Landscape Lighting Installation
-                </h1>
-                <p className="text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
-                  Transform your San Antonio property after dark with professional landscape lighting. 
-                  Enhance security, showcase your landscape's beauty, and extend outdoor living into the evening hours.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <a 
-                    href="#contact" 
-                    className="bg-purple-800 text-white px-8 py-4 rounded-lg font-semibold hover:bg-purple-900 transition-colors inline-flex items-center gap-2"
-                  >
-                    <Phone size={20} />
-                    Get Lighting Quote
-                  </a>
-                  <a 
-                    href="tel:2012544911"
-                    className="border-2 border-purple-800 text-purple-800 px-8 py-4 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
-                  >
-                    Call (201) 254-4911
-                  </a>
-                </div>
-              </div>
-            </div>
-          </section>
+  const serviceFeatures = [
+    {
+      title: "Enhanced Security",
+      description: "Well-lit properties deter intruders and provide safe navigation around your home after dark."
+    },
+    {
+      title: "Curb Appeal at Night",
+      description: "Highlight your landscape's best features and architectural elements for stunning nighttime beauty."
+    },
+    {
+      title: "Extended Outdoor Living",
+      description: "Enjoy patios, decks, and gardens longer with comfortable, functional outdoor lighting."
+    },
+    {
+      title: "Increased Property Value",
+      description: "Professional lighting systems add significant value and appeal to your property investment."
+    },
+    {
+      title: "Safety & Navigation",
+      description: "Illuminate walkways, steps, and potential hazards to prevent accidents and falls."
+    },
+    {
+      title: "Energy Efficiency",
+      description: "Modern LED systems use minimal electricity while providing years of reliable illumination."
+    },
+    {
+      title: "Low Maintenance",
+      description: "Quality LED fixtures last 15+ years with minimal maintenance requirements."
+    },
+    {
+      title: "Smart Controls",
+      description: "Automated timers, motion sensors, and smartphone controls for convenient operation."
+    }
+  ];
 
-          {/* Benefits of Landscape Lighting */}
-          <section className="py-16 bg-gray-50">
-            <div className="container-custom max-w-4xl mx-auto px-4">
-              <h2 className="text-3xl font-bold text-purple-900 mb-8 text-center">Why Add Landscape Lighting?</h2>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <CheckCircle className="text-green-600 mt-1 flex-shrink-0" size={20} />
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Enhanced Security</h3>
-                      <p className="text-gray-700">Well-lit properties deter intruders and provide safe navigation around your home after dark.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle className="text-green-600 mt-1 flex-shrink-0" size={20} />
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Curb Appeal at Night</h3>
-                      <p className="text-gray-700">Highlight your landscape's best features and architectural elements for stunning nighttime beauty.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle className="text-green-600 mt-1 flex-shrink-0" size={20} />
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Extended Outdoor Living</h3>
-                      <p className="text-gray-700">Enjoy patios, decks, and gardens longer with comfortable, functional outdoor lighting.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle className="text-green-600 mt-1 flex-shrink-0" size={20} />
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Increased Property Value</h3>
-                      <p className="text-gray-700">Professional lighting systems add significant value and appeal to your property investment.</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <CheckCircle className="text-green-600 mt-1 flex-shrink-0" size={20} />
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Safety & Navigation</h3>
-                      <p className="text-gray-700">Illuminate walkways, steps, and potential hazards to prevent accidents and falls.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle className="text-green-600 mt-1 flex-shrink-0" size={20} />
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Energy Efficiency</h3>
-                      <p className="text-gray-700">Modern LED systems use minimal electricity while providing years of reliable illumination.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle className="text-green-600 mt-1 flex-shrink-0" size={20} />
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Low Maintenance</h3>
-                      <p className="text-gray-700">Quality LED fixtures last 15+ years with minimal maintenance requirements.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle className="text-green-600 mt-1 flex-shrink-0" size={20} />
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Smart Controls</h3>
-                      <p className="text-gray-700">Automated timers, motion sensors, and smartphone controls for convenient operation.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
+  const plans = [
+    {
+      name: "Basic Lighting Package",
+      icon: <Lightbulb className="text-yellow-500" size={24} />,
+      features: [
+        "Up to 10 LED path lights",
+        "1 transformer",
+        "Basic timer control",
+        "1-year warranty"
+      ],
+      description: "Perfect for illuminating walkways and basic security needs.",
+      highlight: false
+    },
+    {
+      name: "Premium Lighting System",
+      icon: <Zap className="text-blue-500" size={24} />,
+      features: [
+        "Up to 20 LED fixtures",
+        "2-3 transformers",
+        "Smart control system",
+        "3-year warranty"
+      ],
+      description: "Complete outdoor lighting with accent lighting and smart controls.",
+      highlight: true
+    },
+    {
+      name: "Custom Design Package",
+      icon: <Moon className="text-purple-500" size={24} />,
+      features: [
+        "Custom lighting design",
+        "Unlimited fixtures",
+        "Advanced automation",
+        "5-year warranty"
+      ],
+      description: "Tailored lighting solution for unique properties and special features.",
+      highlight: false
+    }
+  ];
+
+  const seasonalCare = [
+    {
+      season: "Spring",
+      items: [
+        "Inspect and clean all fixtures",
+        "Adjust timers for longer days",
+        "Check for any winter damage"
+      ]
+    },
+    {
+      season: "Summer",
+      items: [
+        "Ensure proper cooling around transformers",
+        "Check for overgrown vegetation",
+        "Test all fixtures and controls"
+      ]
+    },
+    {
+      season: "Fall",
+      items: [
+        "Adjust timers for shorter days",
+        "Clear leaves from fixtures",
+        "Check for exposed wiring"
+      ]
+    },
+    {
+      season: "Winter",
+      items: [
+        "Ensure fixtures are snow/ice free",
+        "Check for water intrusion",
+        "Verify proper operation in cold weather"
+      ]
+    }
+  ];
+
+  const faq = [
+    {
+      question: "How much does landscape lighting cost?",
+      answer: "Basic systems start around $2,500, while premium systems with smart controls can range from $5,000 to $15,000 depending on property size and features."
+    },
+    {
+      question: "How long do LED landscape lights last?",
+      answer: "Quality LED landscape lights typically last 15-20 years with minimal maintenance, significantly longer than traditional halogen lights."
+    },
+    {
+      question: "Can I install landscape lighting myself?",
+      answer: "While DIY kits are available, professional installation ensures proper layout, safe electrical connections, and optimal lighting effects that enhance your property's features."
+    },
+    {
+      question: "How much will lighting increase my electric bill?",
+      answer: "LED landscape lighting is very energy efficient. A typical system costs between $5-15 per month to operate, depending on usage and local electricity rates."
+    },
+    {
+      question: "What maintenance is required?",
+      answer: "LED systems require minimal maintenance. We recommend an annual check-up to clean fixtures, adjust timers, and ensure optimal performance."
+    }
+  ];
+
+  return (
+    <ServicesLayout
+      title="Landscape Lighting Installation | San Antonio, TX | Rhinamic"
+      description="Professional landscape lighting installation in San Antonio, TX. LED outdoor lighting systems for security, beauty, and extended outdoor enjoyment."
+      heroTitle="Professional Landscape Lighting Installation"
+      heroDescription="Transform your San Antonio property after dark with professional landscape lighting. Enhance security, showcase your landscape's beauty, and extend outdoor living into the evening hours."
+      serviceFeatures={serviceFeatures}
+      plans={plans}
+      seasonalCare={seasonalCare}
+      faq={faq}
+      ctaTitle="Ready to Illuminate Your Landscape?"
+      ctaDescription="Transform your San Antonio property with professional landscape lighting that enhances beauty, security, and outdoor enjoyment. Let's design the perfect lighting solution for your space."
+    >
 
           {/* Lighting Types & Applications */}
           <section className="py-16 bg-white">
@@ -425,8 +459,6 @@ export default function LandscapeLightingInstallation() {
               </Link>
             </div>
           </section>
-        </div>
-      </Layout>
-    </>
+      </ServicesLayout>
   );
 }
