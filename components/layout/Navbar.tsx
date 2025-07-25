@@ -12,39 +12,40 @@ type ServicePage = {
 };
 
 /**
- * List of all service pages (update this list if new pages are added)
- * This is auto-generated from file names for now.
+ * Dynamically import all service pages from the services directory
  */
 const servicePages: ServicePage[] = [
-  { slug: "artificial-turf-installation", title: "Artificial Turf Installation" },
+  { slug: "cactus", title: "Cactus" },
+  { slug: "decks", title: "Decks" },
+  { slug: "drainage-solutions", title: "Drainage Solutions" },
   { slug: "drip-irrigation-systems", title: "Drip Irrigation Systems" },
+  { slug: "fence-installation", title: "Fence Installation" },
   { slug: "fire-pit-installation", title: "Fire Pit Installation" },
-  { slug: "grass-seeding-overseeding", title: "Grass Seeding Overseeding" },
-  { slug: "irrigation-system-installation-repair", title: "Irrigation System Installation & Repair" },
+  { slug: "garden-maintenance", title: "Garden Maintenance" },
   { slug: "landscape-design", title: "Landscape Design" },
   { slug: "landscape-installation", title: "Landscape Installation" },
   { slug: "landscape-lighting-installation", title: "Landscape Lighting Installation" },
   { slug: "landscape-maintenance", title: "Landscape Maintenance" },
   { slug: "lawn-aeration", title: "Lawn Aeration" },
   { slug: "lawn-care-services", title: "Lawn Care Services" },
-  { slug: "lawn-edging", title: "Lawn Edging" },
   { slug: "lawn-fertilization", title: "Lawn Fertilization" },
-  { slug: "lawn-mowing", title: "Lawn Mowing" },
+  { slug: "lawn-installation", title: "Lawn Installation" },
+  { slug: "mulching-services", title: "Mulching Services" },
   { slug: "native-plant-landscaping", title: "Native Plant Landscaping" },
   { slug: "outdoor-kitchens", title: "Outdoor Kitchens" },
   { slug: "palm-tree-trimming", title: "Palm Tree Trimming" },
   { slug: "paver-patio-installation", title: "Paver Patio Installation" },
+  { slug: "pergolas", title: "Pergolas" },
   { slug: "retaining-wall-construction", title: "Retaining Wall Construction" },
+  { slug: "rusted-iron-walls", title: "Rusted Iron Walls" },
   { slug: "shrub-pruning", title: "Shrub Pruning" },
   { slug: "sod-installation", title: "Sod Installation" },
-  { slug: "sprinkler-system-installation", title: "Sprinkler System Installation" },
   { slug: "stonework-rock-features", title: "Stonework & Rock Features" },
   { slug: "tree-planting", title: "Tree Planting" },
-  { slug: "tree-removal", title: "Tree Removal" },
   { slug: "tree-trimming", title: "Tree Trimming" },
   { slug: "walkways-pathways", title: "Walkways & Pathways" },
   { slug: "weed-control", title: "Weed Control" },
-  { slug: "xeriscaping", title: "Xeriscaping" },
+  { slug: "xeriscaping", title: "Xeriscaping" }
 ];
 
 const Navbar = () => {
@@ -154,19 +155,21 @@ const Navbar = () => {
                 <svg className={`w-4 h-4 ml-1 transition-transform ${showDesktopServices ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>
               </button>
               {showDesktopServices && (
-                <ul className="absolute left-0 mt-2 w-64 bg-white shadow-lg rounded-lg border border-gray-100 z-50">
-                  {servicePages.map((service) => (
-                    <li key={service.slug}>
-                      <Link
-                        href={`/services/${service.slug}`}
-                        className="block px-5 py-2 text-gray-800 hover:bg-rhinamic-lavender/30 hover:text-rhinamic-purple transition-colors rounded"
-                        onClick={() => setShowDesktopServices(false)}
-                      >
-                        {service.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                <div className="absolute left-0 mt-2 w-64 bg-white shadow-lg rounded-lg border border-gray-100 z-50 max-h-96 overflow-y-auto">
+                  <ul>
+                    {servicePages.map((service) => (
+                      <li key={service.slug}>
+                        <Link
+                          href={`/services/${service.slug}`}
+                          className="block px-5 py-2 text-gray-800 hover:bg-rhinamic-lavender/30 hover:text-rhinamic-purple transition-colors rounded"
+                          onClick={() => setShowDesktopServices(false)}
+                        >
+                          {service.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
 
             </li>
