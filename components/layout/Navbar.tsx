@@ -102,14 +102,14 @@ const Navbar = () => {
   };
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 min-h-[60px] ${
       isHomePage 
-        ? (scrolled ? "bg-white shadow-md py-3" : "bg-transparent backdrop-blur-sm py-4")
+        ? (scrolled ? "bg-white shadow-md py-3" : "bg-white/95 backdrop-blur-sm py-3 sm:py-4")
         : "bg-white shadow-md py-3"
     }`}>
-      <div className="container-custom flex items-center justify-between">
-        <div className="flex items-center">
-          <Link href="/" className="text-2xl font-bold text-rhinamic-purple">
+      <div className="container-custom flex items-center justify-between px-4 sm:px-6">
+        <div className="flex items-center flex-shrink-0">
+          <Link href="/" className="text-xl sm:text-2xl font-bold text-rhinamic-purple">
             <span className="flex items-center">
               RHINAMIC
               <span className="hidden sm:inline-block ml-2 text-xs px-2 py-1 bg-rhinamic-lavender/20 text-rhinamic-purple rounded font-medium">LANDSCAPING</span>
@@ -226,14 +226,14 @@ const Navbar = () => {
           </ul>
         </nav>
         
-        <div className="hidden md:flex items-center space-x-4">
+        <div className="hidden md:flex items-center space-x-4 flex-shrink-0">
           <Link 
             href="tel:2012544911" 
-            className={`flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg ${
+            className={`flex items-center gap-2 text-sm font-medium px-3 py-2 rounded-lg ${
               isHomePage
                 ? (scrolled 
                     ? "text-gray-700 border border-gray-300 hover:border-rhinamic-lavender hover:text-rhinamic-purple transition-colors" 
-                    : "text-white bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 transition-all")
+                    : "text-gray-700 bg-white/90 backdrop-blur-sm border border-gray-300 hover:bg-white transition-all")
                 : "text-gray-700 border border-gray-300 hover:border-rhinamic-lavender hover:text-rhinamic-purple transition-colors"
             }`}
           >
@@ -263,22 +263,23 @@ const Navbar = () => {
         
         {/* Mobile Menu Button */}
         <button 
-          className="md:hidden text-rhinamic-primary p-2 focus:outline-none"
+          className="md:hidden text-rhinamic-primary p-2 focus:outline-none hover:bg-rhinamic-lavender/20 rounded-md transition-colors flex-shrink-0"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle menu"
         >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
       
       {/* Mobile Menu */}
-      <div className={`md:hidden absolute w-full bg-white shadow-lg transition-all duration-300 overflow-hidden ${mobileMenuOpen ? 'max-h-screen' : 'max-h-0'}`}>
-        <nav className="container-custom py-4">
-          <ul className="space-y-4">
+      <div className={`md:hidden absolute top-full left-0 right-0 bg-white shadow-lg transition-all duration-300 overflow-hidden border-t border-gray-100 ${mobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}>
+        <nav className="container-custom py-4 px-4 sm:px-6">
+          <ul className="space-y-2">
             <li>
               <a 
                 href="#home" 
                 onClick={(e) => scrollToSection(e, 'home')}
-                className="block py-2 text-gray-800 hover:text-rhinamic-purple transition-colors"
+                className="block py-3 px-2 text-gray-800 hover:text-rhinamic-purple hover:bg-rhinamic-lavender/10 rounded-md transition-colors text-base font-medium"
               >
                 Home
               </a>
@@ -287,21 +288,21 @@ const Navbar = () => {
             <li className="relative">
               <button
                 type="button"
-                className="py-2 w-full text-left text-gray-800 hover:text-rhinamic-purple transition-colors flex items-center gap-1 focus:outline-none"
+                className="py-3 px-2 w-full text-left text-gray-800 hover:text-rhinamic-purple hover:bg-rhinamic-lavender/10 rounded-md transition-colors flex items-center justify-between focus:outline-none text-base font-medium"
                 onClick={() => setShowMobileServices(!showMobileServices)}
                 aria-haspopup="true"
                 aria-expanded={showMobileServices}
               >
-                Services
-                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                <span>Services</span>
+                <svg className={`w-4 h-4 transition-transform ${showMobileServices ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>
               </button>
               {showMobileServices && (
-                <ul className="mt-1 mb-2 bg-white rounded-lg shadow-lg border border-gray-100">
+                <ul className="mt-2 mb-2 bg-gray-50 rounded-lg border border-gray-200 max-h-64 overflow-y-auto">
                   {servicePages.map((service) => (
                     <li key={service.slug}>
                       <Link
                         href={`/services/${service.slug}`}
-                        className="block px-5 py-2 text-gray-800 hover:bg-rhinamic-lavender/30 hover:text-rhinamic-purple transition-colors rounded"
+                        className="block px-4 py-3 text-gray-800 hover:bg-rhinamic-lavender/30 hover:text-rhinamic-purple transition-colors text-sm"
                         onClick={() => { setMobileMenuOpen(false); setShowMobileServices(false); }}
                       >
                         {service.title}
@@ -315,7 +316,7 @@ const Navbar = () => {
               <a 
                 href="#why-choose-us" 
                 onClick={(e) => scrollToSection(e, 'why-choose-us')}
-                className="block py-2 text-gray-800 hover:text-rhinamic-purple transition-colors"
+                className="block py-3 px-2 text-gray-800 hover:text-rhinamic-purple hover:bg-rhinamic-lavender/10 rounded-md transition-colors text-base font-medium"
               >
                 Why Us
               </a>
@@ -324,7 +325,7 @@ const Navbar = () => {
               <a 
                 href="#gallery" 
                 onClick={(e) => scrollToSection(e, 'gallery')}
-                className="block py-2 text-gray-800 hover:text-rhinamic-purple transition-colors"
+                className="block py-3 px-2 text-gray-800 hover:text-rhinamic-purple hover:bg-rhinamic-lavender/10 rounded-md transition-colors text-base font-medium"
               >
                 Gallery
               </a>
@@ -333,7 +334,7 @@ const Navbar = () => {
               <a 
                 href="#contact" 
                 onClick={(e) => scrollToSection(e, 'contact')}
-                className="block py-2 text-gray-800 hover:text-rhinamic-purple transition-colors"
+                className="block py-3 px-2 text-gray-800 hover:text-rhinamic-purple hover:bg-rhinamic-lavender/10 rounded-md transition-colors text-base font-medium"
               >
                 Contact
               </a>
@@ -342,7 +343,7 @@ const Navbar = () => {
               <a 
                 href="#contact" 
                 onClick={(e) => scrollToSection(e, 'contact')}
-                className="block py-3 bg-rhinamic-primary text-white rounded-lg text-center font-medium"
+                className="block py-3 px-2 bg-rhinamic-primary text-white rounded-lg text-center font-medium hover:bg-rhinamic-dark transition-colors active:scale-95"
               >
                 Get a Quote
               </a>
