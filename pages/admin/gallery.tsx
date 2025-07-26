@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
+import { authService } from "../../lib/auth";
 
 interface GalleryImage {
   id: string;
@@ -16,22 +16,30 @@ export default function AdminGallery() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
-  const { data: session, status } = useSession();
 
   // Check authentication
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/admin"); // Redirect to admin login
-    }
-  }, [status, router]);
+    const checkAuth = async () => {
+      try {
+        const isAuth = await authService.isAuthenticated();
+        if (!isAuth) {
+          router.push("/login");
+          return;
+        }
+        setIsAuthenticated(true);
+        fetchImages();
+      } catch (error) {
+        console.error("Auth check error:", error);
+        router.push("/login");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Fetch gallery images
-  useEffect(() => {
-    if (status === "authenticated") {
-      fetchImages();
-    }
-  }, [status]);
+    checkAuth();
+  }, [router]);
 
   const fetchImages = async () => {
     try {
@@ -81,7 +89,7 @@ export default function AdminGallery() {
     }
   };
 
-  if (status === "loading") {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-purple-500 border-r-transparent"></div>
@@ -89,7 +97,7 @@ export default function AdminGallery() {
     );
   }
 
-  if (status === "unauthenticated") {
+  if (!isAuthenticated) {
     return null; // Will redirect via useEffect
   }
 

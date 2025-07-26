@@ -83,7 +83,16 @@ export default function EnhancedProjectForm({
   });
 
   const [images, setImages] = useState<ImageUpload[]>(
-    initialData?.images || []
+    initialData?.images?.map((img: any, index: number) => ({
+      id: img.id || `initial-${index}`,
+      file: img.file || null,
+      preview: img.preview || img.public_url || img.url || '',
+      isPrimary: img.isPrimary || img.is_primary || false,
+      order: img.order || img.display_order || index,
+      imageType: img.imageType || img.image_type || 'general',
+      caption: img.caption || img.alt_text || '',
+      isExisting: img.isExisting || true
+    })) || []
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [dragOver, setDragOver] = useState(false);

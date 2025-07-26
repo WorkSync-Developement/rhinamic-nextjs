@@ -116,7 +116,7 @@ export default function ProjectsDashboard() {
       // Transform data to match expected format
       const transformedProjects = data?.map(project => {
         // Sort images by display_order and find primary image
-        const sortedImages = project.project_images?.sort((a, b) => a.display_order - b.display_order) || [];
+        const sortedImages = project.project_images?.sort((a: any, b: any) => a.display_order - b.display_order) || [];
         const primaryImage = sortedImages.find(img => img.is_primary) || sortedImages[0];
         
         return {

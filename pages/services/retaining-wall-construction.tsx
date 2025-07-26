@@ -179,7 +179,7 @@ const RetainingWallConstructionPage = () => {
         </div>
       </div>
 
-      <div className="py-16 bg-gradient-to-br from-stone-50 to-gray-100">
+      <section className="py-16 bg-gradient-to-br from-stone-50 to-gray-100">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold text-gray-800 mb-12 text-center">
@@ -222,6 +222,11 @@ const RetainingWallConstructionPage = () => {
                   Expert construction with attention to detail and quality craftsmanship
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+        
         <section className="py-16 bg-white">
           <div className="container mx-auto px-6">
             <div className="max-w-6xl mx-auto">
@@ -527,7 +532,6 @@ const RetainingWallConstructionPage = () => {
             </div>
           </div>
         </section>
-      </div>
     </ServicesLayout>
   );
 };
