@@ -1,6 +1,7 @@
 import { CheckCircle, Palette, Users, Clock, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
 import ServicesLayout from "../../components/layout/ServicesLayout";
+import ServiceProjects from "../../components/services/ServiceProjects";
 
 export default function LandscapeDesign() {
   const serviceFeatures = [
@@ -212,6 +213,9 @@ export default function LandscapeDesign() {
           </div>
         </div>
       </section>
+
+      {/* Related Projects */}
+      <ServiceProjects serviceName="Landscape Design" />
 
       {/* CTA Section */}
       <section id="contact" className="py-16 bg-purple-900 text-white">

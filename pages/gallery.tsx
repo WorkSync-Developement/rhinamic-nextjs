@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Head from "next/head";
+import Link from "next/link";
 import Layout from "../components/layout/Layout";
 import Image from "next/image";
-import { X, ZoomIn, Filter, Camera, Leaf, Droplets, Scissors, Hammer, Sun } from "lucide-react";
+import { X, ZoomIn } from "lucide-react";
+import ProjectFilter from "../components/gallery/ProjectFilter";
+import ProjectGrid from "../components/gallery/ProjectGrid";
+import ProjectModal from "../components/gallery/ProjectModal";
 
 interface GalleryImage {
   id: string;
@@ -12,7 +16,16 @@ interface GalleryImage {
   createdTime: string;
 }
 
-interface ProjectImage {
+interface Project {
+  title: string;
+  slug: string;
+  image: string;
+  service: string;
+  description: string;
+  createdAt?: string;
+}
+
+interface LightboxImage {
   id: string;
   title: string;
   description: string;
@@ -23,29 +36,14 @@ interface ProjectImage {
   beforeImageUrl?: string;
 }
 
-const serviceCategories = [
-  "Lawn Maintenance",
-  "Garden Design", 
-  "Hardscaping",
-  "Irrigation",
-  "Landscape Lighting",
-  "Tree Services"
-];
-
-const categories = [
-  { name: "All", icon: Camera },
-  { name: "Lawn Maintenance", icon: Leaf },
-  { name: "Garden Design", icon: Leaf },
-  { name: "Hardscaping", icon: Hammer },
-  { name: "Irrigation", icon: Droplets },
-  { name: "Landscape Lighting", icon: Sun },
-  { name: "Tree Services", icon: Scissors }
-];
-
 export default function Gallery() {
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedImage, setSelectedImage] = useState<ProjectImage | null>(null);
+  const [selectedService, setSelectedService] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [selectedImage, setSelectedImage] = useState<LightboxImage | null>(null);
   const [showBeforeAfter, setShowBeforeAfter] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,34 +77,100 @@ export default function Gallery() {
     fetchGalleryData();
   }, []);
 
-  // Transform gallery images into project format for display
-  const transformedImages: ProjectImage[] = galleryImages.map((image, index) => {
-    // Try to match with existing projects or create default data
-    const matchingProject = projects.find(p => p.image && p.image.includes(image.id));
-    
-    return {
-      id: image.id,
-      title: matchingProject?.title || image.name || `Project ${index + 1}`,
-      description: image.description || matchingProject?.description || 'Beautiful landscaping project in San Antonio, TX',
-      category: matchingProject?.service || 'Garden Design',
+  // Transform gallery images and projects into unified format
+  const allProjects = useMemo(() => {
+    // Combine gallery images and JSON projects
+    const galleryProjects = galleryImages.map((image, index) => {
+      const matchingProject = projects.find(p => p.image && p.image.includes(image.id));
+      
+      return {
+        title: matchingProject?.title || image.name || `Project ${index + 1}`,
+        slug: matchingProject?.slug || `project-${index + 1}`,
+        image: image.url,
+        service: matchingProject?.service || 'Garden Design',
+        description: image.description || matchingProject?.description || 'Beautiful landscaping project in San Antonio, TX',
+        createdAt: image.createdTime,
+      };
+    });
+
+    // Add JSON projects that might not have gallery images yet
+    const jsonProjects = projects.map(project => ({
+      title: project.title,
+      slug: project.slug,
+      image: project.image,
+      service: project.service,
+      description: project.description,
+      createdAt: new Date().toISOString(), // Default to current date
+    }));
+
+    // Combine and deduplicate
+    const combined = [...galleryProjects, ...jsonProjects];
+    const unique = combined.filter((project, index, self) => 
+      index === self.findIndex(p => p.slug === project.slug)
+    );
+
+    return unique;
+  }, [galleryImages, projects]);
+
+  // Get unique services for filtering
+  const availableServices = useMemo(() => {
+    const services = new Set(allProjects.map(project => project.service));
+    return Array.from(services).sort();
+  }, [allProjects]);
+
+  // Filter and search projects
+  const filteredProjects = useMemo(() => {
+    let filtered = allProjects;
+
+    // Filter by service
+    if (selectedService) {
+      filtered = filtered.filter(project => project.service === selectedService);
+    }
+
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(project => 
+        project.title.toLowerCase().includes(query) ||
+        project.description.toLowerCase().includes(query) ||
+        project.service.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [allProjects, selectedService, searchQuery]);
+
+  const openProjectModal = (project: Project) => {
+    // Convert project to modal format with multiple images
+    const modalProject = {
+      title: project.title,
+      service: project.service,
+      description: project.description,
+      images: [{
+        id: `${project.slug}-1`,
+        url: project.image,
+        alt: project.title,
+        isPrimary: true,
+      }],
+      createdAt: project.createdAt,
       location: 'San Antonio, TX',
-      year: new Date(image.createdTime).getFullYear().toString(),
-      imageUrl: image.url,
     };
-  });
+    setSelectedProject(modalProject);
+    setIsModalOpen(true);
+  };
 
-  const filteredImages = selectedCategory === "All" 
-    ? transformedImages 
-    : transformedImages.filter(img => img.category === selectedCategory);
-
-  // Update category counts dynamically
-  const categoriesWithCounts = categories.map(cat => ({
-    ...cat,
-    count: cat.name === "All" ? transformedImages.length : transformedImages.filter(img => img.category === cat.name).length
-  }));
-
-  const openLightbox = (image: ProjectImage) => {
-    setSelectedImage(image);
+  const openLightbox = (project: Project) => {
+    // Convert project to lightbox format (keep for backward compatibility)
+    const lightboxImage: LightboxImage = {
+      id: project.slug,
+      title: project.title,
+      description: project.description,
+      category: project.service,
+      location: 'San Antonio, TX',
+      year: new Date(project.createdAt || '').getFullYear().toString() || new Date().getFullYear().toString(),
+      imageUrl: project.image,
+    };
+    setSelectedImage(lightboxImage);
     setShowBeforeAfter(false);
   };
 
@@ -127,52 +191,18 @@ export default function Gallery() {
       
       <Layout>
         <div className="min-h-screen bg-white">
-          {/* Hero Section */}
-          <section className="py-20 bg-gradient-to-b from-purple-50 to-white">
-            <div className="container-custom max-w-6xl mx-auto px-4">
-              <div className="text-center mb-12">
-                <h1 className="text-5xl font-bold text-purple-900 mb-6 drop-shadow-sm">
-                  Project Gallery
-                </h1>
-                <p className="text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
-                  Explore our portfolio of stunning landscape transformations across San Antonio. 
-                  From drought-tolerant xeriscaping to luxurious outdoor living spaces.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* Filter Categories */}
-          <section className="py-8 bg-gray-50 border-b">
-            <div className="container-custom max-w-6xl mx-auto px-4">
-              <div className="flex items-center gap-2 mb-6">
-                <Filter className="text-purple-700" size={20} />
-                <h2 className="text-lg font-semibold text-purple-900">Filter by Category</h2>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                {categoriesWithCounts.map((category) => {
-                  const IconComponent = category.icon;
-                  return (
-                    <button
-                      key={category.name}
-                      onClick={() => setSelectedCategory(category.name)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                        selectedCategory === category.name
-                          ? "bg-purple-800 text-white shadow-md"
-                          : "bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-800 border border-gray-200"
-                      }`}
-                    >
-                      <IconComponent size={16} />
-                      <span>{category.name}</span>
-                      <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
-                        {category.count}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
+          {/* Project Filter */}
+          <ProjectFilter
+            services={availableServices}
+            selectedService={selectedService}
+            onServiceChange={setSelectedService}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            projectCount={filteredProjects.length}
+            totalCount={allProjects.length}
+          />
 
           {/* Gallery Grid */}
           <section className="py-16">
@@ -191,57 +221,11 @@ export default function Gallery() {
               )}
               
               {!loading && !error && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {filteredImages.map((image) => (
-                    <div
-                      key={image.id}
-                      className="group cursor-pointer bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-                      onClick={() => openLightbox(image)}
-                    >
-                      <div className="relative aspect-[4/3] overflow-hidden">
-                        <Image
-                          src={image.imageUrl}
-                          alt={image.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        <div className="absolute top-4 right-4 bg-white/90 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <ZoomIn className="text-purple-700" size={16} />
-                        </div>
-                        {image.beforeImageUrl && (
-                          <div className="absolute top-4 left-4 bg-purple-700 text-white px-2 py-1 rounded text-xs font-medium">
-                            Before/After
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-6">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-purple-700 bg-purple-50 px-2 py-1 rounded">
-                            {image.category}
-                          </span>
-                          <span className="text-sm text-gray-500">{image.year}</span>
-                        </div>
-                        <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-purple-800 transition-colors">
-                          {image.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                          {image.description}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          📍 {image.location}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {!loading && !error && filteredImages.length === 0 && (
-                <div className="text-center py-12">
-                  <p className="text-gray-600 text-lg">No projects found in this category.</p>
-                </div>
+                <ProjectGrid 
+                  projects={filteredProjects}
+                  viewMode={viewMode}
+                  onProjectClick={openProjectModal}
+                />
               )}
             </div>
           </section>
@@ -261,12 +245,12 @@ export default function Gallery() {
                 >
                   Call (201) 254-4911
                 </a>
-                <a 
+                <Link 
                   href="/contact"
                   className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-purple-900 transition-colors"
                 >
                   Get Free Consultation
-                </a>
+                </Link>
               </div>
             </div>
           </section>
@@ -328,6 +312,13 @@ export default function Gallery() {
             </div>
           </div>
         )}
+
+        {/* Project Modal */}
+        <ProjectModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          project={selectedProject}
+        />
       </Layout>
     </>
   );

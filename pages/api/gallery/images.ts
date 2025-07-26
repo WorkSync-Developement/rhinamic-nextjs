@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getGalleryImages } from '../../../lib/googleDrive';
+import { getSupabaseClient } from '../../../lib/supabase';
 
 interface GalleryImage {
   id: string;
@@ -22,36 +22,42 @@ export default async function handler(
   }
 
   try {
-    const folderId = process.env.GOOGLE_DRIVE_GALLERY_FOLDER_ID;
+    const supabase = getSupabaseClient();
     
-    if (!folderId) {
-      throw new Error('Google Drive folder ID is not configured');
-    }
-    
-    const images = await getGalleryImages(folderId);
-    
-    if (!images || !Array.isArray(images)) {
-      throw new Error('Invalid response from Google Drive API');
+    // Fetch project images from Supabase
+    const { data, error } = await supabase
+      .from('project_images')
+      .select(`
+        id,
+        public_url,
+        alt_text,
+        caption,
+        image_type,
+        is_primary,
+        created_at,
+        projects (
+          title,
+          service_name
+        )
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw new Error(`Supabase error: ${error.message}`);
     }
 
-    // Transform Google Drive URLs to direct image URLs
-    const transformedImages = images
-      .filter((image): image is GalleryImage => Boolean(image?.id)) // Filter out any invalid images
-      .map((image) => ({
-        id: image.id,
-        name: image.name || 'Untitled Image',
-        description: image.description || '',
-        url: `https://drive.google.com/uc?id=${image.id}`,
-        createdTime: image.createdTime || new Date().toISOString(),
-      }));
-
-    if (transformedImages.length === 0) {
-      console.warn('No valid images found in the specified folder');
-    }
+    // Transform Supabase data to match expected format
+    const transformedImages: GalleryImage[] = (data || []).map((image) => ({
+      id: image.id,
+      name: image.projects?.title || 'Project Image',
+      description: image.caption || image.alt_text || `${image.image_type} image from ${image.projects?.service_name || 'project'}`,
+      url: image.public_url,
+      createdTime: image.created_at,
+    }));
 
     res.status(200).json(transformedImages);
   } catch (error) {
     console.error('API Error:', error);
-    res.status(500).json({ message: 'Error fetching gallery images' });
+    res.status(500).json({ message: 'Error fetching gallery images from Supabase' });
   }
 }

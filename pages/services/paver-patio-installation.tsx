@@ -1,6 +1,7 @@
 import React from "react";
 import { Home, Shield, Wrench } from "lucide-react";
 import ServicesLayout from "../../components/layout/ServicesLayout";
+import ServiceProjects from "../../components/services/ServiceProjects";
 
 const PaverPatioInstallation = () => {
   const serviceFeatures = [
@@ -151,7 +152,10 @@ const PaverPatioInstallation = () => {
       faq={faq}
       ctaTitle="Ready to Transform Your Outdoor Space?"
       ctaDescription="Get a free quote for your custom paver patio installation in San Antonio. Our expert team will design and build the perfect outdoor living space for your home."
-    />
+    >
+      {/* Related Projects */}
+      <ServiceProjects serviceName="Paver Patio Installation" />
+    </ServicesLayout>
   );
 };
 

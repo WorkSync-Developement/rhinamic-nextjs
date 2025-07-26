@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import { authService } from '../lib/auth';
 import Navbar from '../components/layout/Navbar';
 
 export default function Login() {
@@ -16,14 +16,10 @@ export default function Login() {
     setError('');
 
     try {
-      const result = await signIn('credentials', {
-        redirect: false,
-        email,
-        password,
-      });
+      const result = await authService.signIn(email, password);
 
-      if (result?.error) {
-        setError('Invalid email or password');
+      if (!result.success) {
+        setError(result.error || 'Invalid email or password');
         setIsLoading(false);
       } else {
         // Redirect to the originally requested page, or admin gallery as default

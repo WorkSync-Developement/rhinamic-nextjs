@@ -1,18 +1,15 @@
-import React, { useState } from "react";
-import projectsData from "../../public/data/projects.json";
-import { Plus, X, LogOut, Home as HomeIcon } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { getSupabaseClient } from "../../lib/supabase";
+import { Plus, X, LogOut, Home as HomeIcon, Edit, Trash2, Eye, Search, Filter, BarChart3, FolderOpen, Users } from "lucide-react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link";
+import Head from "next/head";
+import { authService } from "../../lib/auth";
+import EnhancedProjectForm from "../../components/admin/EnhancedProjectForm";
+import { ProjectUploadData } from "../../lib/validations";
 
-const SERVICES = [
-  "Lawn Maintenance",
-  "Garden Design",
-  "Hardscaping",
-  "Irrigation",
-  "Landscape Lighting",
-  "Tree Services",
-];
+// Services will be imported from the EnhancedProjectForm component
 
 function slugify(service: string, title: string) {
   return `${service}-${title}`.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -23,14 +20,30 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => (
     <div>
       <h2 className="text-2xl font-bold mb-8 tracking-tight">Admin</h2>
       <nav className="space-y-2">
-        <Link href="/" className="text-gray-700 hover:text-purple-800 flex items-center gap-2 mb-8">
+        <Link 
+          href="/" 
+          className="flex items-center gap-2 text-purple-200 hover:text-white py-2 px-4 rounded hover:bg-purple-800 transition-colors"
+        >
           <HomeIcon size={20} /> Home
         </Link>
-        <a className="block py-2 px-4 rounded bg-purple-800 font-semibold mt-2" href="#">Projects</a>
+        
+        <Link 
+          href="/admin/projects" 
+          className="flex items-center gap-2 bg-purple-800 text-white py-2 px-4 rounded font-semibold"
+        >
+          <FolderOpen size={20} /> Projects
+        </Link>
+        
+        <Link 
+          href="/admin/users" 
+          className="flex items-center gap-2 text-purple-200 hover:text-white py-2 px-4 rounded hover:bg-purple-800 transition-colors"
+        >
+          <Users size={20} /> Users
+        </Link>
       </nav>
     </div>
     <button
-      className="flex items-center gap-2 text-purple-200 hover:text-white mt-8 py-2 px-4 rounded hover:bg-purple-800 font-semibold"
+      className="flex items-center gap-2 text-purple-200 hover:text-white mt-8 py-2 px-4 rounded hover:bg-purple-800 font-semibold transition-colors"
       onClick={onLogout}
     >
       <LogOut size={18} /> Log Out
@@ -39,73 +52,134 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => (
 );
 
 export default function ProjectsDashboard() {
-  const [showModal, setShowModal] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [projects, setProjects] = useState(projectsData);
-  const [form, setForm] = useState({
-    title: "",
-    service: SERVICES[0],
-    image: "",
-    description: "",
-  });
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>("");
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showForm, setShowForm] = useState(false);
+  const [editingProject, setEditingProject] = useState<any | null>(null);
+  const [projects, setProjects] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterService, setFilterService] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const router = useRouter();
 
-  function handleLogout() {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("rhinamic_admin");
-      router.push("/admin");
-    }
-  }
+  // Check authentication and load projects on component mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const isAuth = await authService.isAuthenticated();
+        if (!isAuth) {
+          router.push("/admin");
+          return;
+        }
+        await loadProjects();
+      } catch (error) {
+        console.error("Auth check error:", error);
+        setAuthError("Authentication error occurred");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  }
+    checkAuth();
+  }, [router]);
 
-  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files && e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setImageFile(null);
-      setImagePreview("");
-    }
-  }
-
-  function validateForm() {
-    const newErrors: Record<string, string> = {};
-    
-    if (!form.title.trim()) newErrors.title = 'Title is required';
-    if (!form.service.trim()) newErrors.service = 'Service is required';
-    if (!form.description.trim()) newErrors.description = 'Description is required';
-    if (!imagePreview && editingId === null) newErrors.image = 'Image is required';
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  }
-
-  async function handleAddProject(e: React.FormEvent) {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return; // Don't proceed if validation fails
-    }
-    
+  const loadProjects = async () => {
     try {
-      let imageUrl = imagePreview;
+      const supabase = getSupabaseClient();
       
-      // If we have a new image file, upload it to Google Drive
-      if (imageFile) {
+      // Fetch projects with their primary images
+      const { data, error } = await supabase
+        .from('projects')
+        .select(`
+          *,
+          project_images!left (
+            id,
+            public_url,
+            alt_text,
+            is_primary,
+            image_type,
+            caption
+          ),
+          services (
+            name,
+            slug
+          )
+        `)
+        .eq('project_images.is_primary', true)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading projects:', error);
+        return;
+      }
+
+      // Transform data to match expected format
+      const transformedProjects = data?.map(project => ({
+        title: project.title,
+        slug: project.slug,
+        service: project.service_name,
+        description: project.description,
+        image: project.project_images?.[0]?.public_url || '/placeholder-image.jpg',
+        status: project.status || 'published',
+        location: project.location || 'San Antonio, TX',
+        createdAt: project.created_at,
+        id: project.id
+      })) || [];
+
+      setProjects(transformedProjects);
+    } catch (error) {
+      console.error('Failed to load projects:', error);
+    }
+  };
+
+  async function handleLogout() {
+    try {
+      await authService.signOut();
+      router.push("/admin");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  }
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-purple-700">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if authentication failed
+  if (authError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center bg-white p-8 rounded-lg shadow-md">
+          <p className="text-red-600 mb-4">{authError}</p>
+          <button
+            onClick={() => router.push("/admin")}
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+          >
+            Return to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const handleCreateProject = async (data: ProjectUploadData) => {
+    try {
+      setIsSubmitting(true);
+      
+      // Upload images to Google Drive API
+      const uploadedImages = [];
+      for (const imgData of data.images) {
         const formData = new FormData();
-        formData.append('image', imageFile);
-        formData.append('description', form.description);
+        formData.append('image', imgData.file);
+        formData.append('description', data.description);
         
         const response = await fetch('/api/gallery/upload', {
           method: 'POST',
@@ -118,193 +192,312 @@ export default function ProjectsDashboard() {
         }
         
         const result = await response.json();
-        imageUrl = `https://drive.google.com/uc?id=${result.file.id}`;
+        uploadedImages.push({
+          url: `https://drive.google.com/uc?id=${result.file.id}`,
+          isPrimary: imgData.isPrimary,
+          order: imgData.order,
+        });
       }
       
-      const slug = slugify(form.service, form.title);
-      const projectData = { 
-        ...form, 
-        slug, 
-        image: imageUrl 
+      const slug = slugify(data.service, data.title);
+      const primaryImage = uploadedImages.find(img => img.isPrimary)?.url || uploadedImages[0]?.url || '';
+      
+      const newProject = {
+        title: data.title,
+        service: data.service,
+        description: data.description,
+        image: primaryImage, // For backward compatibility
+        slug,
+        images: uploadedImages, // New multi-image structure
+        createdAt: new Date().toISOString(),
       };
       
-      if (editingId !== null) {
-        // Update existing project
-        setProjects(projects.map((project, index) => 
-          index === editingId 
-            ? projectData
-            : project
-        ));
-      } else {
-        // Add new project
-        setProjects([
-          ...projects,
-          projectData,
-        ]);
-      }
-      
-      // Reset form and close modal
-      setShowModal(false);
-      setEditingId(null);
-      setForm({ title: "", service: SERVICES[0], image: "", description: "" });
-      setImageFile(null);
-      setImagePreview("");
-      setErrors({});
+      setProjects(prev => [...prev, newProject]);
+      setShowForm(false);
       
     } catch (error) {
-      console.error('Error saving project:', error);
-      alert(`Error: ${error instanceof Error ? error.message : 'Failed to save project'}`);
+      console.error('Error creating project:', error);
+      throw new Error('Failed to create project');
+    } finally {
+      setIsSubmitting(false);
     }
-  }
+  };
+
+  const handleEditProject = async (data: ProjectUploadData) => {
+    if (!editingProject) return;
+    
+    try {
+      setIsSubmitting(true);
+      
+      // Upload new images to Google Drive API
+      const uploadedImages = [];
+      for (const imgData of data.images) {
+        const formData = new FormData();
+        formData.append('image', imgData.file);
+        formData.append('description', data.description);
+        
+        const response = await fetch('/api/gallery/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to upload image');
+        }
+        
+        const result = await response.json();
+        uploadedImages.push({
+          url: `https://drive.google.com/uc?id=${result.file.id}`,
+          isPrimary: imgData.isPrimary,
+          order: imgData.order,
+        });
+      }
+      
+      const slug = slugify(data.service, data.title);
+      const primaryImage = uploadedImages.find(img => img.isPrimary)?.url || uploadedImages[0]?.url || '';
+      
+      const updatedProject = {
+        ...editingProject,
+        title: data.title,
+        service: data.service,
+        description: data.description,
+        image: primaryImage,
+        slug,
+        images: uploadedImages,
+        updatedAt: new Date().toISOString(),
+      };
+      
+      setProjects(prev => prev.map((p, index) => 
+        index === projects.findIndex(proj => proj === editingProject) ? updatedProject : p
+      ));
+      
+      setEditingProject(null);
+      setShowForm(false);
+      
+    } catch (error) {
+      console.error('Error updating project:', error);
+      throw new Error('Failed to update project');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   
-  function handleEditProject(index: number) {
-    const project = projects[index];
-    setForm({
-      title: project.title,
-      service: project.service,
-      image: project.image,
-      description: project.description,
-    });
-    setImagePreview(project.image);
-    setEditingId(index);
-    setErrors({});
-    setShowModal(true);
-  }
+  const openEditForm = (project: any) => {
+    setEditingProject(project);
+    setShowForm(true);
+  };
   
-  function handleDeleteProject(index: number) {
-    if (confirm('Are you sure you want to delete this project?')) {
+  const handleDeleteProject = (index: number) => {
+    if (confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
       setProjects(projects.filter((_, i) => i !== index));
+      // Remove from selection if it was selected
+      setSelectedProjects(prev => prev.filter(id => id !== index.toString()));
     }
+  };
+
+  // Bulk operations handlers
+
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingProject(null);
+  };
+
+  // Get unique services for filter dropdown
+  const availableServices = Array.from(new Set(projects.map(p => p.service))).sort();
+
+  // Filter projects based on search and service filter
+  const filteredProjects = projects.filter(project => {
+    const matchesSearch = !searchQuery || 
+      project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesService = !filterService || project.service === filterService;
+    
+    return matchesSearch && matchesService;
+  });
+
+  if (showForm) {
+    return (
+      <>
+        <Head>
+          <title>{editingProject ? 'Edit Project' : 'Create Project'} | Admin</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Head>
+        <div className="min-h-screen bg-gray-50 py-8">
+          <EnhancedProjectForm
+            onSubmit={editingProject ? handleEditProject : handleCreateProject}
+            onCancel={closeForm}
+            initialData={editingProject ? {
+              title: editingProject.title,
+              service: editingProject.service,
+              description: editingProject.description,
+            } : undefined}
+            isLoading={isSubmitting}
+          />
+        </div>
+      </>
+    );
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar onLogout={handleLogout} />
-      <main className="ml-64 flex-1 p-10">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-purple-900">Project Gallery Dashboard</h1>
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-purple-800 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:bg-purple-900 transition"
-          >
-            <Plus size={20} /> Add Project
-          </button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((proj, i) => (
-            <div key={i} className="bg-white rounded-xl shadow-md hover:shadow-xl p-6 flex flex-col">
-              {proj.image && (
-                <Image src={proj.image} alt={proj.title} className="rounded-lg mb-4 h-40 w-full object-cover bg-gray-200" width={400} height={160} />
-              )}
-              <div className="flex-1">
-                <div className="flex justify-between items-start mb-2">
-                  <h2 className="text-xl font-bold text-purple-900">{proj.title}</h2>
-                  <button 
-                    onClick={() => handleEditProject(i)}
-                    className="text-purple-600 hover:text-purple-800"
-                    aria-label="Edit project"
-                  >
-                    Edit
-                  </button>
-                </div>
-                <span className="inline-block bg-purple-100 text-purple-800 text-xs px-3 py-1 rounded-full mb-2">{proj.service}</span>
-                <p className="text-gray-700 text-sm mb-2">{proj.description}</p>
-              </div>
+    <>
+      <Head>
+        <title>Project Management | Admin</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Head>
+      
+      <div className="flex min-h-screen bg-gray-50">
+        <Sidebar onLogout={handleLogout} />
+        <main className="ml-64 flex-1 p-10">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-purple-900">Project Management</h1>
+              <p className="text-gray-600 mt-1">Manage your gallery projects</p>
             </div>
-          ))}
-        </div>
-        {showModal && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 relative">
-              <button
-                className="absolute top-4 right-4 text-gray-400 hover:text-purple-800"
-                onClick={() => {
-                  setShowModal(false);
-                  setEditingId(null);
-                  setForm({ title: "", service: SERVICES[0], image: "", description: "" });
-                  setImageFile(null);
-                  setImagePreview("");
-                  setErrors({});
-                }}
-                aria-label="Close"
+            
+            <div className="flex items-center gap-4">
+              <a
+                href="/gallery"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 text-purple-600 hover:text-purple-700 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors"
               >
-                <X size={24} />
+                <Eye size={20} />
+                View Gallery
+              </a>
+              
+              <button
+                onClick={() => setShowForm(true)}
+                className="flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+              >
+                <Plus size={20} />
+                Add Project
               </button>
-              <h2 className="text-2xl font-bold mb-6 text-purple-900">
-                {editingId !== null ? 'Edit Project' : 'Add New Project'}
-              </h2>
-              <form onSubmit={handleAddProject} className="space-y-5" encType="multipart/form-data">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Service</label>
-                  <select
-                    name="service"
-                    value={form.service}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-2 border ${errors.service ? 'border-red-500' : 'border-purple-200'} rounded-lg focus:ring-2 focus:ring-purple-300 outline-none`}
-                  >
-                    {SERVICES.map((svc) => (
-                      <option key={svc} value={svc}>{svc}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={form.title}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-2 border ${errors.title ? 'border-red-500' : 'border-purple-200'} rounded-lg focus:ring-2 focus:ring-purple-300 outline-none`}
-                  />
-                  {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Image Upload</label>
-                  <input
-                    type="file"
-                    name="image"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className={`w-full px-4 py-2 border ${errors.image ? 'border-red-500' : 'border-purple-200'} rounded-lg focus:ring-2 focus:ring-purple-300 outline-none`}
-                  />
-                  {errors.image && <p className="mt-1 text-sm text-red-600">{errors.image}</p>}
-                  {imagePreview && (
-                    <Image src={imagePreview} alt="Preview" className="mt-3 rounded-lg h-32 w-full object-cover border border-purple-100" width={400} height={128} />
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                  <textarea
-                    name="description"
-                    value={form.description}
-                    onChange={handleChange}
-                    rows={3}
-                    className={`w-full px-4 py-2 border ${errors.description ? 'border-red-500' : 'border-purple-200'} rounded-lg focus:ring-2 focus:ring-purple-300 outline-none`}
-                  />
-                  {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
-                </div>
-                <div className="flex gap-3">
-                  {editingId !== null && (
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteProject(editingId)}
-                      className="flex-1 bg-red-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-red-700 transition"
-                    >
-                      Delete
-                    </button>
-                  )}
-                  <button
-                    type="submit"
-                    className="flex-1 bg-purple-800 text-white py-3 px-4 rounded-lg font-semibold shadow-lg hover:bg-purple-900 transition"
-                  >
-                    {editingId !== null ? 'Update' : 'Add'} Project
-                  </button>
-                </div>
-              </form>
             </div>
           </div>
-        )}
-      </main>
-    </div>
+
+          {/* Filters */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+            <div className="flex flex-col lg:flex-row gap-4">
+              {/* Search */}
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                  type="text"
+                  placeholder="Search projects..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-colors"
+                />
+              </div>
+              
+              {/* Service Filter */}
+              <div className="relative">
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <select
+                  value={filterService || ''}
+                  onChange={(e) => setFilterService(e.target.value || null)}
+                  className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-colors min-w-[200px]"
+                >
+                  <option value="">All Services</option>
+                  {availableServices.map((service) => (
+                    <option key={service} value={service}>
+                      {service}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+
+          {/* Projects Grid */}
+          {filteredProjects.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="mb-4">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Plus className="text-gray-400" size={24} />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No projects found</h3>
+                <p className="text-gray-600 mb-6">
+                  {projects.length === 0 
+                    ? "Get started by creating your first project"
+                    : "Try adjusting your search or filters"
+                  }
+                </p>
+                {projects.length === 0 && (
+                  <button
+                    onClick={() => setShowForm(true)}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                  >
+                    <Plus size={20} />
+                    Create First Project
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredProjects.map((proj, i) => (
+                <div key={i} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow overflow-hidden">
+                  {/* Project Image */}
+                  {proj.image && (
+                    <div className="aspect-[4/3] relative bg-gray-100">
+                      <Image 
+                        src={proj.image} 
+                        alt={proj.title} 
+                        fill
+                        className="object-cover" 
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Project Details */}
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <h2 className="text-xl font-bold text-purple-900 line-clamp-2 flex-1">
+                        {proj.title}
+                      </h2>
+                    </div>
+                    
+                    <div className="mb-3">
+                      <span className="inline-block bg-purple-100 text-purple-800 text-sm px-2 py-1 rounded">
+                        {proj.service}
+                      </span>
+                    </div>
+                    
+                    <p className="text-gray-600 text-sm line-clamp-3 mb-4">
+                      {proj.description}
+                    </p>
+                    
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => openEditForm(proj)}
+                        className="flex items-center gap-1 px-3 py-2 text-sm text-blue-600 hover:text-blue-700 border border-blue-200 rounded hover:bg-blue-50 transition-colors"
+                      >
+                        <Edit size={16} />
+                        Edit
+                      </button>
+                      
+                      <button
+                        onClick={() => handleDeleteProject(i)}
+                        className="flex items-center gap-1 px-3 py-2 text-sm text-red-600 hover:text-red-700 border border-red-200 rounded hover:bg-red-50 transition-colors"
+                      >
+                        <Trash2 size={16} />
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </main>
+      </div>
+    </>
   );
 }

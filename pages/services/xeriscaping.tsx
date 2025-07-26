@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { CheckCircle, Droplets, Sun, Leaf, Calendar, Phone } from "lucide-react";
 import ServicesLayout from "../../components/layout/ServicesLayout";
+import ServiceProjects from "../../components/services/ServiceProjects";
 
 const XeriscapingPage = () => {
   const serviceFeatures = [
@@ -562,6 +563,9 @@ const XeriscapingPage = () => {
             </div>
           </div>
         </section>
+        
+        {/* Related Projects */}
+        <ServiceProjects serviceName="Xeriscaping" />
     </ServicesLayout>
   );
 };
