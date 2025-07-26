@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from "react";
-import Navbar from "../components/layout/Navbar";
-import Footer from "../components/layout/Footer";
+import React, { useState, useEffect, useMemo } from "react";
+import Head from "next/head";
+import Link from "next/link";
+import Layout from "../components/layout/Layout";
 import Image from "next/image";
+import { X, ZoomIn } from "lucide-react";
+import ProjectFilter from "../components/gallery/ProjectFilter";
+import ProjectGrid from "../components/gallery/ProjectGrid";
+import ProjectModal from "../components/gallery/ProjectModal";
 
 interface GalleryImage {
   id: string;
@@ -11,97 +16,310 @@ interface GalleryImage {
   createdTime: string;
 }
 
+interface Project {
+  title: string;
+  slug: string;
+  image: string;
+  service: string;
+  description: string;
+  createdAt?: string;
+}
+
+interface LightboxImage {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  location: string;
+  year: string;
+  imageUrl: string;
+  beforeImageUrl?: string;
+}
+
 export default function Gallery() {
-  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [selectedService, setSelectedService] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [selectedImage, setSelectedImage] = useState<LightboxImage | null>(null);
+  const [showBeforeAfter, setShowBeforeAfter] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Fetch gallery images from Google Drive
   useEffect(() => {
-    const fetchGalleryImages = async () => {
+    const fetchGalleryData = async () => {
       try {
-        const response = await fetch('/api/gallery/images');
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch gallery images');
+        // Fetch gallery images from Google Drive
+        const galleryResponse = await fetch('/api/gallery/images');
+        if (galleryResponse.ok) {
+          const galleryData = await galleryResponse.json();
+          setGalleryImages(galleryData);
         }
-        
-        const data = await response.json();
-        setImages(data);
-        setLoading(false);
+
+        // Fetch projects data
+        const projectsResponse = await fetch('/data/projects.json');
+        if (projectsResponse.ok) {
+          const projectsData = await projectsResponse.json();
+          setProjects(projectsData);
+        }
       } catch (err) {
-        console.error('Error fetching gallery images:', err);
-        setError('Unable to load gallery images. Please try again later.');
+        console.error('Error fetching gallery data:', err);
+        setError('Unable to load gallery images');
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchGalleryImages();
+    fetchGalleryData();
   }, []);
 
-  return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar />
-      <main className="flex-1">
-        <section className="py-20 bg-gradient-to-b from-white to-purple-50">
-          <div className="container-custom max-w-5xl mx-auto px-4">
-            <h1 className="text-5xl font-bold text-center mb-12 text-purple-900 drop-shadow-sm">Gallery</h1>
-            
-            {loading && (
-              <div className="text-center py-12">
-                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-purple-500 border-r-transparent"></div>
-                <p className="mt-4 text-gray-600">Loading gallery images...</p>
-              </div>
-            )}
-            
-            {error && (
-              <div className="text-center py-12">
-                <p className="text-red-500">{error}</p>
-              </div>
-            )}
-            
-            {!loading && !error && images.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-gray-600">No gallery images found.</p>
-              </div>
-            )}
+  // Transform gallery images and projects into unified format
+  const allProjects = useMemo(() => {
+    // Combine gallery images and JSON projects
+    const galleryProjects = galleryImages.map((image, index) => {
+      const matchingProject = projects.find(p => p.image && p.image.includes(image.id));
+      
+      return {
+        title: matchingProject?.title || image.name || `Project ${index + 1}`,
+        slug: matchingProject?.slug || `project-${index + 1}`,
+        image: image.url,
+        service: matchingProject?.service || 'Garden Design',
+        description: image.description || matchingProject?.description || 'Beautiful landscaping project in San Antonio, TX',
+        createdAt: image.createdTime,
+      };
+    });
 
-            {!loading && !error && images.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-                {images.map((image) => (
-                  <div
-                    key={image.id}
-                    className="relative group rounded-xl overflow-hidden shadow-md bg-white flex flex-col justify-end aspect-[4/3]"
-                  >
-                    <Image
-                      src={image.url}
-                      alt={image.name}
-                      className="absolute inset-0 object-cover group-hover:scale-105 transition-transform duration-300"
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
-                    />
-                    {image.description && (
-                      <div className="absolute top-0 left-0 w-full bg-gradient-to-b from-black/60 to-transparent py-3 px-5">
-                        <span className="text-lg font-semibold text-white drop-shadow-sm">{image.description}</span>
-                      </div>
-                    )}
-                    <div className="relative z-10 p-4 mt-auto">
-                      <span className="text-base font-medium text-purple-900 bg-white/80 rounded px-2 py-1 shadow">
-                        {image.name}
-                      </span>
-                    </div>
-                    <span className="absolute inset-0 z-20 group-hover:bg-purple-900/10 transition-colors" />
-                  </div>
-                ))}
+    // Add JSON projects that might not have gallery images yet
+    const jsonProjects = projects.map(project => ({
+      title: project.title,
+      slug: project.slug,
+      image: project.image,
+      service: project.service,
+      description: project.description,
+      createdAt: new Date().toISOString(), // Default to current date
+    }));
+
+    // Combine and deduplicate
+    const combined = [...galleryProjects, ...jsonProjects];
+    const unique = combined.filter((project, index, self) => 
+      index === self.findIndex(p => p.slug === project.slug)
+    );
+
+    return unique;
+  }, [galleryImages, projects]);
+
+  // Get unique services for filtering
+  const availableServices = useMemo(() => {
+    const services = new Set(allProjects.map(project => project.service));
+    return Array.from(services).sort();
+  }, [allProjects]);
+
+  // Filter and search projects
+  const filteredProjects = useMemo(() => {
+    let filtered = allProjects;
+
+    // Filter by service
+    if (selectedService) {
+      filtered = filtered.filter(project => project.service === selectedService);
+    }
+
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(project => 
+        project.title.toLowerCase().includes(query) ||
+        project.description.toLowerCase().includes(query) ||
+        project.service.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [allProjects, selectedService, searchQuery]);
+
+  const openProjectModal = (project: Project) => {
+    // Convert project to modal format with multiple images
+    const modalProject = {
+      title: project.title,
+      service: project.service,
+      description: project.description,
+      images: [{
+        id: `${project.slug}-1`,
+        url: project.image,
+        alt: project.title,
+        isPrimary: true,
+      }],
+      createdAt: project.createdAt,
+      location: 'San Antonio, TX',
+    };
+    setSelectedProject(modalProject);
+    setIsModalOpen(true);
+  };
+
+  const openLightbox = (project: Project) => {
+    // Convert project to lightbox format (keep for backward compatibility)
+    const lightboxImage: LightboxImage = {
+      id: project.slug,
+      title: project.title,
+      description: project.description,
+      category: project.service,
+      location: 'San Antonio, TX',
+      year: new Date(project.createdAt || '').getFullYear().toString() || new Date().getFullYear().toString(),
+      imageUrl: project.image,
+    };
+    setSelectedImage(lightboxImage);
+    setShowBeforeAfter(false);
+  };
+
+  const closeLightbox = () => {
+    setSelectedImage(null);
+    setShowBeforeAfter(false);
+  };
+
+  return (
+    <>
+      <Head>
+        <title>Project Gallery | Rhinamic Landscape Design | San Antonio, TX</title>
+        <meta name="description" content="Browse our portfolio of stunning landscape projects in San Antonio. From xeriscaping to outdoor kitchens, see our professional landscaping work." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://www.rhinamic.com/gallery" />
+      </Head>
+      
+      <Layout>
+        <div className="min-h-screen bg-white">
+          {/* Project Filter */}
+          <ProjectFilter
+            services={availableServices}
+            selectedService={selectedService}
+            onServiceChange={setSelectedService}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            projectCount={filteredProjects.length}
+            totalCount={allProjects.length}
+          />
+
+          {/* Gallery Grid */}
+          <section className="py-16">
+            <div className="container-custom max-w-6xl mx-auto px-4">
+              {loading && (
+                <div className="text-center py-12">
+                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-purple-500 border-r-transparent"></div>
+                  <p className="mt-4 text-gray-600">Loading gallery images...</p>
+                </div>
+              )}
+              
+              {error && (
+                <div className="text-center py-12">
+                  <p className="text-red-500">{error}</p>
+                </div>
+              )}
+              
+              {!loading && !error && (
+                <ProjectGrid 
+                  projects={filteredProjects}
+                  viewMode={viewMode}
+                  onProjectClick={openProjectModal}
+                />
+              )}
+            </div>
+          </section>
+
+          {/* Call to Action */}
+          <section className="py-16 bg-purple-900 text-white">
+            <div className="container-custom max-w-4xl mx-auto px-4 text-center">
+              <h2 className="text-3xl font-bold mb-6">Ready to Transform Your Landscape?</h2>
+              <p className="text-xl text-purple-100 mb-8">
+                Let's create something beautiful together. Contact us for a free consultation 
+                and see how we can bring your vision to life.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a 
+                  href="tel:2012544911"
+                  className="bg-white text-purple-900 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                >
+                  Call (201) 254-4911
+                </a>
+                <Link 
+                  href="/contact"
+                  className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-purple-900 transition-colors"
+                >
+                  Get Free Consultation
+                </Link>
               </div>
-            )}
-            
-            <div className="text-center mt-14">
-              <span className="text-lg text-gray-600">Explore our landscaping projects and design inspirations.</span>
+            </div>
+          </section>
+        </div>
+
+        {/* Lightbox Modal */}
+        {selectedImage && (
+          <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+            <div className="relative max-w-4xl max-h-[90vh] w-full">
+              <button
+                onClick={closeLightbox}
+                className="absolute top-4 right-4 z-10 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-colors"
+              >
+                <X size={24} />
+              </button>
+              
+              <div className="bg-white rounded-lg overflow-hidden shadow-2xl">
+                <div className="relative aspect-[4/3]">
+                  <Image
+                    src={showBeforeAfter && selectedImage.beforeImageUrl ? selectedImage.beforeImageUrl : selectedImage.imageUrl}
+                    alt={selectedImage.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 80vw"
+                  />
+                </div>
+                
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm font-medium text-purple-700 bg-purple-50 px-3 py-1 rounded">
+                        {selectedImage.category}
+                      </span>
+                      <span className="text-sm text-gray-500">{selectedImage.year}</span>
+                    </div>
+                    {selectedImage.beforeImageUrl && (
+                      <button
+                        onClick={() => setShowBeforeAfter(!showBeforeAfter)}
+                        className="bg-purple-700 text-white px-4 py-2 rounded text-sm font-medium hover:bg-purple-800 transition-colors"
+                      >
+                        {showBeforeAfter ? "Show After" : "Show Before"}
+                      </button>
+                    )}
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                    {selectedImage.title}
+                  </h3>
+                  
+                  <p className="text-gray-600 mb-4">
+                    {selectedImage.description}
+                  </p>
+                  
+                  <p className="text-sm text-gray-500">
+                    📍 {selectedImage.location}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-        </section>
-      </main>
-      <Footer />
-    </div>
+        )}
+
+        {/* Project Modal */}
+        <ProjectModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          project={selectedProject}
+        />
+      </Layout>
+    </>
   );
 }

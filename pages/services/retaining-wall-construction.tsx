@@ -1,71 +1,227 @@
 import React from 'react';
+import { Phone, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
-import Layout from '../../components/layout/Layout';
+import ServicesLayout from '../../components/layout/ServicesLayout';
 
 const RetainingWallConstructionPage = () => {
-  return (
-    <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100">
-        {/* Hero Section */}
-        <section className="relative bg-gradient-to-r from-stone-600 to-gray-700 text-white py-24">
-          <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-5xl font-bold mb-6">
-                Retaining Wall Construction
-              </h1>
-              <p className="text-xl text-stone-100 mb-8">
-                Professional retaining wall design and construction to solve slope issues and enhance your San Antonio landscape.
-              </p>
-              <Link
-                href="/contact"
-                className="inline-block bg-yellow-500 text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-yellow-400 transition-colors duration-300"
-              >
-                Build My Wall
-              </Link>
-            </div>
-          </div>
-        </section>
+  const serviceFeatures = [
+    {
+      title: 'Functional Solutions',
+      description: 'Engineer-designed retaining walls that solve erosion problems, create usable space, and manage drainage effectively.',
+    },
+    {
+      title: 'Aesthetic Design',
+      description: 'Beautiful retaining walls that enhance your landscape design while providing essential structural support and functionality.',
+    },
+  ];
 
-        {/* Service Overview */}
-        <section className="py-16">
-          <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-                Expert Retaining Wall Solutions
-              </h2>
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="bg-white p-8 rounded-lg shadow-lg">
-                  <h3 className="text-xl font-semibold text-green-600 mb-4">Functional Solutions</h3>
-                  <p className="text-gray-600 mb-4">
-                    Engineer-designed retaining walls that solve erosion problems, create usable space, and manage drainage effectively.
-                  </p>
-                  <ul className="text-gray-600 space-y-2">
-                    <li>• Slope stabilization and erosion control</li>
-                    <li>• Drainage management systems</li>
-                    <li>• Soil retention and grading</li>
-                    <li>• Foundation protection</li>
-                    <li>• Usable space creation</li>
-                  </ul>
-                </div>
-                <div className="bg-white p-8 rounded-lg shadow-lg">
-                  <h3 className="text-xl font-semibold text-green-600 mb-4">Aesthetic Design</h3>
-                  <p className="text-gray-600 mb-4">
-                    Beautiful retaining walls that enhance your landscape design while providing essential structural support and functionality.
-                  </p>
-                  <ul className="text-gray-600 space-y-2">
-                    <li>• Custom design integration</li>
-                    <li>• Material and color coordination</li>
-                    <li>• Terraced landscaping options</li>
-                    <li>• Built-in seating and planters</li>
-                    <li>• Lighting integration capabilities</li>
-                  </ul>
-                </div>
+  const plans = [
+    {
+      name: 'Basic Wall',
+      icon: '🧱',
+      features: ['Segmental block construction', 'Up to 4 feet tall', 'Basic drainage', 'Standard backfill'],
+      description: 'Ideal for simple landscape projects with minimal height requirements.',
+    },
+    {
+      name: 'Premium Wall',
+      icon: '🏗️',
+      features: ['Natural stone or premium block', 'Up to 6 feet tall', 'Advanced drainage system', 'Reinforced backfill', 'Custom design options'],
+      description: 'Perfect for larger projects requiring enhanced durability and aesthetic appeal.',
+      highlight: true,
+    },
+    {
+      name: 'Custom Solution',
+      icon: '🎨',
+      features: ['Fully customized design', 'Engineered solutions', 'Unlimited height options', 'Integrated features', 'Premium materials'],
+      description: 'Tailored solutions for complex projects with specific requirements.',
+    },
+  ];
+
+  const seasonalCare = [
+    {
+      season: 'Spring',
+      items: ['Inspect for winter damage', 'Check drainage systems', 'Clean wall surfaces', 'Inspect for settling'],
+    },
+    {
+      season: 'Summer',
+      items: ['Monitor drainage', 'Check for erosion', 'Inspect for cracks', 'Clean wall surfaces'],
+    },
+    {
+      season: 'Fall',
+      items: ['Clear debris', 'Check drainage', 'Pre-winter inspection', 'Address any issues'],
+    },
+    {
+      season: 'Winter',
+      items: ['Monitor for frost heave', 'Clear snow buildup', 'Check for ice damage', 'Plan spring maintenance'],
+    },
+  ];
+
+  const faq = [
+    {
+      question: 'How long does a retaining wall last?',
+      answer: 'A well-constructed retaining wall with proper drainage can last 30-50 years or more, depending on materials and maintenance.',
+    },
+    {
+      question: 'Do I need a permit for a retaining wall?',
+      answer: 'In San Antonio, walls over 4 feet tall typically require a permit. We handle all permitting as part of our service.',
+    },
+    {
+      question: 'What maintenance do retaining walls require?',
+      answer: 'Minimal maintenance is required - regular inspections, keeping drainage clear, and addressing any cracks or movement promptly.',
+    },
+    {
+      question: 'Can I build a retaining wall myself?',
+      answer: 'While small walls under 3 feet can be DIY projects, we recommend professional installation for proper engineering, drainage, and longevity.',
+    },
+  ];
+
+  return (
+    <ServicesLayout
+      title="Retaining Wall Construction | Rhinamic Landscape Design"
+      description="Professional retaining wall design and construction in San Antonio. Expert solutions for slope stabilization, erosion control, and landscape enhancement."
+      heroTitle="Retaining Wall Construction"
+      heroDescription="Professional retaining wall design and construction to solve slope issues and enhance your San Antonio landscape."
+      serviceFeatures={serviceFeatures}
+      plans={plans}
+      seasonalCare={seasonalCare}
+      faq={faq}
+      ctaTitle="Ready to Build Your Retaining Wall?"
+      ctaDescription="Contact us today for a free consultation and quote on your retaining wall project."
+    >
+
+      <div className="py-16 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-gray-800 mb-12 text-center">
+              Retaining Wall Material Options
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="bg-stone-50 p-6 rounded-lg">
+                <h3 className="text-xl font-semibold text-stone-600 mb-4">Natural Stone</h3>
+                <p className="text-gray-600 mb-4">
+                  Beautiful, durable limestone and flagstone walls that blend naturally with Texas landscapes.
+                </p>
+                <ul className="text-gray-600 space-y-1 text-sm">
+                  <li>• Texas limestone varieties</li>
+                  <li>• Flagstone and sandstone options</li>
+                  <li>• Natural color variations</li>
+                  <li>• Extremely long-lasting</li>
+                  <li>• Increases property value</li>
+                </ul>
+              </div>
+              <div className="bg-stone-50 p-6 rounded-lg">
+                <h3 className="text-xl font-semibold text-stone-600 mb-4">Segmental Block</h3>
+                <p className="text-gray-600 mb-4">
+                  Engineered concrete blocks offering consistent appearance, easy installation, and excellent structural integrity.
+                </p>
+                <ul className="text-gray-600 space-y-1 text-sm">
+                  <li>• Interlocking design system</li>
+                  <li>• Multiple color and texture options</li>
+                  <li>• Consistent dimensions</li>
+                  <li>• Cost-effective solution</li>
+                  <li>• Easy maintenance</li>
+                </ul>
+              </div>
+              <div className="bg-stone-50 p-6 rounded-lg">
+                <h3 className="text-xl font-semibold text-stone-600 mb-4">Poured Concrete</h3>
+                <p className="text-gray-600 mb-4">
+                  Reinforced concrete walls with custom finishes, textures, and colors for modern design applications.
+                </p>
+                <ul className="text-gray-600 space-y-1 text-sm">
+                  <li>• Custom forms and shapes</li>
+                  <li>• Stamped and textured finishes</li>
+                  <li>• Integrated color options</li>
+                  <li>• Maximum structural strength</li>
+                  <li>• Smooth, clean lines</li>
+                </ul>
+              </div>
+              <div className="bg-stone-50 p-6 rounded-lg">
+                <h3 className="text-xl font-semibold text-stone-600 mb-4">Timber Walls</h3>
+                <p className="text-gray-600 mb-4">
+                  Natural wood retaining walls perfect for rustic settings and shorter applications with organic appeal.
+                </p>
+                <ul className="text-gray-600 space-y-1 text-sm">
+                  <li>• Pressure-treated lumber</li>
+                  <li>• Cedar and redwood options</li>
+                  <li>• Natural, organic appearance</li>
+                  <li>• Budget-friendly option</li>
+                  <li>• Easy integration with landscapes</li>
+                </ul>
+              </div>
+              <div className="bg-stone-50 p-6 rounded-lg">
+                <h3 className="text-xl font-semibold text-stone-600 mb-4">Boulder Walls</h3>
+                <p className="text-gray-600 mb-4">
+                  Large natural boulder retaining walls that create dramatic visual impact while providing excellent stability.
+                </p>
+                <ul className="text-gray-600 space-y-1 text-sm">
+                  <li>• Native Texas stone boulders</li>
+                  <li>• Natural, irregular shapes</li>
+                  <li>• Excellent drainage properties</li>
+                  <li>• Wildlife-friendly design</li>
+                  <li>• Minimal maintenance required</li>
+                </ul>
+              </div>
+              <div className="bg-stone-50 p-6 rounded-lg">
+                <h3 className="text-xl font-semibold text-stone-600 mb-4">Gabion Walls</h3>
+                <p className="text-gray-600 mb-4">
+                  Wire basket systems filled with stone offering excellent drainage and modern industrial aesthetic appeal.
+                </p>
+                <ul className="text-gray-600 space-y-1 text-sm">
+                  <li>• Galvanized steel wire baskets</li>
+                  <li>• Excellent drainage properties</li>
+                  <li>• Modern, industrial look</li>
+                  <li>• Flexible installation</li>
+                  <li>• Environmentally friendly</li>
+                </ul>
               </div>
             </div>
           </div>
-        </section>
+        </div>
+      </div>
 
-        {/* Wall Types Section */}
+      <div className="py-16 bg-gradient-to-br from-stone-50 to-gray-100">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-gray-800 mb-12 text-center">
+              Professional Construction Process
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+                <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl font-bold text-stone-600">1</span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Site Analysis</h3>
+                <p className="text-gray-600 text-sm">
+                  Assess soil conditions, drainage, and structural requirements
+                </p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+                <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl font-bold text-stone-600">2</span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Engineering Design</h3>
+                <p className="text-gray-600 text-sm">
+                  Professional design ensuring structural integrity and local code compliance
+                </p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+                <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl font-bold text-stone-600">3</span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Material Selection</h3>
+                <p className="text-gray-600 text-sm">
+                  Choose from a variety of materials to match your aesthetic and budget
+                </p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+                <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl font-bold text-stone-600">4</span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Professional Installation</h3>
+                <p className="text-gray-600 text-sm">
+                  Expert construction with attention to detail and quality craftsmanship
+                </p>
+              </div>
         <section className="py-16 bg-white">
           <div className="container mx-auto px-6">
             <div className="max-w-6xl mx-auto">
@@ -156,7 +312,6 @@ const RetainingWallConstructionPage = () => {
           </div>
         </section>
 
-        {/* Construction Process Section */}
         <section className="py-16 bg-gradient-to-br from-stone-50 to-gray-100">
           <div className="container mx-auto px-6">
             <div className="max-w-6xl mx-auto">
@@ -186,18 +341,18 @@ const RetainingWallConstructionPage = () => {
                   <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl font-bold text-stone-600">3</span>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Foundation Prep</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Material Selection</h3>
                   <p className="text-gray-600 text-sm">
-                    Excavation, base preparation, and drainage system installation
+                    Choose from a variety of materials to match your aesthetic and budget
                   </p>
                 </div>
                 <div className="bg-white p-6 rounded-lg shadow-lg text-center">
                   <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl font-bold text-stone-600">4</span>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Wall Construction</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Professional Installation</h3>
                   <p className="text-gray-600 text-sm">
-                    Professional installation with proper drainage and backfill
+                    Expert construction with attention to detail and quality craftsmanship
                   </p>
                 </div>
               </div>
@@ -205,7 +360,6 @@ const RetainingWallConstructionPage = () => {
           </div>
         </section>
 
-        {/* Applications Section */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-6">
             <div className="max-w-6xl mx-auto">
@@ -254,7 +408,6 @@ const RetainingWallConstructionPage = () => {
           </div>
         </section>
 
-        {/* Engineering & Permits Section */}
         <section className="py-16 bg-gradient-to-br from-gray-50 to-stone-100">
           <div className="container mx-auto px-6">
             <div className="max-w-6xl mx-auto">
@@ -374,36 +527,8 @@ const RetainingWallConstructionPage = () => {
             </div>
           </div>
         </section>
-
-        {/* CTA Section */}
-        <section className="py-16 bg-gradient-to-r from-stone-600 to-gray-700 text-white">
-          <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold mb-6">
-                Solve Your Slope & Erosion Problems
-              </h2>
-              <p className="text-xl text-stone-100 mb-8">
-                Contact Rhinamic Landscape Design for professional retaining wall design and construction that solves problems and enhances your San Antonio property.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link
-                  href="/contact"
-                  className="inline-block bg-yellow-500 text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-yellow-400 transition-colors duration-300"
-                >
-                  Get Free Estimate
-                </Link>
-                <a
-                  href="tel:+1234567890"
-                  className="inline-block bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-stone-600 transition-colors duration-300"
-                >
-                  Call (123) 456-7890
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
       </div>
-    </Layout>
+    </ServicesLayout>
   );
 };
 
