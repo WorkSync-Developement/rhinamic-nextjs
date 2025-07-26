@@ -87,25 +87,25 @@ export default function ProjectsDashboard() {
     try {
       const supabase = getSupabaseClient();
       
-      // Fetch projects with their primary images
+      // Fetch projects with ALL their images (for editing) and services
       const { data, error } = await supabase
         .from('projects')
         .select(`
           *,
-          project_images!left (
+          project_images (
             id,
             public_url,
             alt_text,
             is_primary,
             image_type,
-            caption
+            caption,
+            display_order
           ),
           services (
             name,
             slug
           )
         `)
-        .eq('project_images.is_primary', true)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -114,17 +114,24 @@ export default function ProjectsDashboard() {
       }
 
       // Transform data to match expected format
-      const transformedProjects = data?.map(project => ({
-        title: project.title,
-        slug: project.slug,
-        service: project.service_name,
-        description: project.description,
-        image: project.project_images?.[0]?.public_url || '/placeholder-image.jpg',
-        status: project.status || 'published',
-        location: project.location || 'San Antonio, TX',
-        createdAt: project.created_at,
-        id: project.id
-      })) || [];
+      const transformedProjects = data?.map(project => {
+        // Sort images by display_order and find primary image
+        const sortedImages = project.project_images?.sort((a, b) => a.display_order - b.display_order) || [];
+        const primaryImage = sortedImages.find(img => img.is_primary) || sortedImages[0];
+        
+        return {
+          title: project.title,
+          slug: project.slug,
+          service: project.service_name,
+          description: project.description,
+          image: primaryImage?.public_url || '/placeholder-image.jpg',
+          status: project.status || 'published',
+          location: project.location || 'San Antonio, TX',
+          createdAt: project.created_at,
+          id: project.id,
+          images: sortedImages // Include all images for editing
+        };
+      }) || [];
 
       setProjects(transformedProjects);
     } catch (error) {
@@ -317,28 +324,6 @@ export default function ProjectsDashboard() {
     return matchesSearch && matchesService;
   });
 
-  if (showForm) {
-    return (
-      <>
-        <Head>
-          <title>{editingProject ? 'Edit Project' : 'Create Project'} | Admin</title>
-          <meta name="robots" content="noindex, nofollow" />
-        </Head>
-        <div className="min-h-screen bg-gray-50 py-8">
-          <EnhancedProjectForm
-            onSubmit={editingProject ? handleEditProject : handleCreateProject}
-            onCancel={closeForm}
-            initialData={editingProject ? {
-              title: editingProject.title,
-              service: editingProject.service,
-              description: editingProject.description,
-            } : undefined}
-            isLoading={isSubmitting}
-          />
-        </div>
-      </>
-    );
-  }
 
   return (
     <>
@@ -498,6 +483,48 @@ export default function ProjectsDashboard() {
           )}
         </main>
       </div>
+
+      {/* Modal for Create/Edit Project Form */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-purple-900">
+                {editingProject ? 'Edit Project' : 'Create New Project'}
+              </h2>
+              <button
+                onClick={closeForm}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <div className="p-6">
+              <EnhancedProjectForm
+                onSubmit={editingProject ? handleEditProject : handleCreateProject}
+                onCancel={closeForm}
+                initialData={editingProject ? {
+                  title: editingProject.title,
+                  service: editingProject.service,
+                  description: editingProject.description,
+                  // Convert existing images to the format expected by the form
+                  images: editingProject.images ? editingProject.images.map((img: any, index: number) => ({
+                    id: img.id || `existing-${index}`,
+                    file: null, // No file for existing images
+                    preview: img.public_url || img.url || img.image,
+                    isPrimary: img.is_primary || false,
+                    order: img.display_order || index,
+                    imageType: img.image_type || 'general',
+                    caption: img.caption || img.alt_text || '',
+                    isExisting: true // Flag to identify existing images
+                  })) : []
+                } : undefined}
+                isLoading={isSubmitting}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

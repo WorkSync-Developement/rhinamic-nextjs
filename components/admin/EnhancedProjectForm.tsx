@@ -3,13 +3,14 @@ import { Plus, X, Upload, Image, AlertCircle, CheckCircle, Move } from 'lucide-r
 import { validateProjectUpload, formatValidationErrors, ProjectUploadData } from '../../lib/validations';
 
 interface ImageUpload {
-  file: File;
+  file: File | null;
   preview: string;
   isPrimary: boolean;
   order: number;
   id: string;
   imageType: 'before' | 'after' | 'during' | 'general';
   caption?: string;
+  isExisting?: boolean; // Flag for existing images
 }
 
 interface EnhancedProjectFormProps {
@@ -81,7 +82,9 @@ export default function EnhancedProjectForm({
     description: initialData?.description || '',
   });
 
-  const [images, setImages] = useState<ImageUpload[]>([]);
+  const [images, setImages] = useState<ImageUpload[]>(
+    initialData?.images || []
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [dragOver, setDragOver] = useState(false);
 
